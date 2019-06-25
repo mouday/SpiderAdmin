@@ -1,0 +1,40 @@
+{#
+消息闪现的模板，配合Bootstrap使用
+使用时需要传入分类：
+    success
+    info
+    warning
+    error
+#}
+
+{% with messages = get_flashed_messages(category_filter=["success"]) %}
+    {% if messages %}
+        {% for message in messages %}
+            <div class="alert alert-success">{{ message }}</div>
+        {% endfor %}
+    {% endif %}
+{% endwith %}
+
+{% with messages = get_flashed_messages(category_filter=["info"]) %}
+    {% if messages %}
+        {% for message in messages %}
+            <div class="alert alert-info">{{ message }}</div>
+        {% endfor %}
+    {% endif %}
+{% endwith %}
+
+{% with messages = get_flashed_messages(category_filter=["warning"]) %}
+    {% if messages %}
+        {% for message in messages %}
+            <div class="alert alert-warning">{{ message }}</div>
+        {% endfor %}
+    {% endif %}
+{% endwith %}
+
+{% with messages = get_flashed_messages(category_filter=["error"]) %}
+    {% if messages %}
+        {% for message in messages %}
+            <div class="alert alert-danger">{{ message }}</div>
+        {% endfor %}
+    {% endif %}
+{% endwith %}

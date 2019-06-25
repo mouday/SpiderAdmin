@@ -1,0 +1,143 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <meta charset="UTF-8">
+    <!-- 引入样式 -->
+    <link rel="stylesheet" href="/static/element-ui/element-ui@2.9.1.css">
+    <!-- 先引入 Vue -->
+    <script src="/static/element-ui/vue@2.6.10.js"></script>
+    <!-- 引入组件库 -->
+    <script src="/static/element-ui/element-ui@2.9.1.js"></script>
+    <script src="/static/element-ui/axios@0.18.0.min.js"></script>
+    <script src="/static/js/jquery@3.4.1.min.js"></script>
+    <script src="/static/js/jquery.cookie@1.4.1.min.js"></script>
+    <style>
+        .el-main a{
+        text-decoration:none;
+        color:#333;
+    }
+    </style>
+</head>
+<body>
+<el-container>
+    <div id="app">
+        <el-breadcrumb separator="/">
+            <template v-for="item in navs">
+                <el-breadcrumb-item><a :href="item.url"><i class="el-icon-refresh"></i>{{item.name}}</a></el-breadcrumb-item>
+            </template>
+        </el-breadcrumb>
+
+        <el-header>
+            <h2>项目列表</h2>
+        </el-header>
+        
+        <el-main>
+            <!-- 显示任务表格开始 -->
+        <template>
+            <el-table :data="tableData" stripe border>
+
+                <el-table-column  type="index" label="序号" width="80"></el-table-column>
+                <el-table-column prop="project_name" label="项目名称"></el-table-column>
+                <el-table-column prop="human_version" label="项目版本"></el-table-column>
+                <el-table-column label="查看爬虫" width="120">
+                    <template slot-scope="scope">
+                        <el-button size="mini" @click="openSpider(scope.row.project_name)" type="primary">
+                            <i class="el-icon-tickets"></i>查看</el-button>
+                    </template>
+                </el-table-column>
+
+                <el-table-column label="查看任务" width="120">
+                    <template slot-scope="scope">
+                        <el-button size="mini" @click="openJob(scope.row.project_name)" type="primary">
+                            <i class="el-icon-s-order"></i>查看</el-button>
+                    </template>
+                </el-table-column>
+
+                <el-table-column label="移除" width="120">
+                    <template slot-scope="scope">
+                        <el-button size="mini" @click="removeVersion(scope.row)" type="warning">
+                            <i class="el-icon-delete"></i>移除</el-button>
+                    </template>
+                </el-table-column>
+
+            </el-table>
+        </template>
+            <!-- 显示任务表格结束 -->
+        </el-main>
+    </div>
+</el-container>
+</body>
+
+<script>
+    new Vue({
+        el: '#app',
+        data: {
+            tableData: [],
+            formData: {
+                server_name: $.cookie("server_name"),
+                server_host: $.cookie("server_host"),
+            },
+            navs: [
+                {
+                    name: "刷新列表",
+                    url: "/project-vue"
+                }
+            ]
+        },
+        methods: {
+            getProjects: function () {
+                axios.get("/api/listProjects", {
+                    params: this.formData
+                }).then((response) => {
+                    this.tableData = response.data.projects;
+                }).catch(() => {
+                    this.$message.info("加载失败");
+                });
+            },
+            removeVersion: function(row) {
+                this.$confirm('从服务器中删除该项目版本，是否继续?', '提示', {
+                    confirmButtonText: '确定',
+                    cancelButtonText: '取消',
+                    type: 'warning'
+                }).then(() => { 
+                    var url = "/api/deleteVersion";
+                    axios.get(url, {
+                        params: {
+                            server_name: this.formData.server_name,
+                            server_host: this.formData.server_host,
+                            project_name: row.project_name,
+                            version: row.version
+                        }
+                    }).then((response) => {
+                        this.getProjects();
+                        this.$message.success("删除结果：" + response.data.message);
+                    })
+                }).catch(() => {
+                    this.$message({
+                        type: 'info',
+                        message: '已取消删除'
+                    });
+                });
+                
+            },
+            
+            openSpider: function (project_name) {
+                $.cookie("project_name", project_name);
+                var url = "/spider-vue";
+                window.location.href = url;
+            },
+            
+            openJob: function (project_name) {
+                $.cookie("project_name", project_name);
+                var url = "/job-vue";
+                window.location.href = url;
+            },
+
+
+        },
+        created() {
+            this.getProjects();
+    }
+    })
+</script>
+</html>

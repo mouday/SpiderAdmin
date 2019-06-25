@@ -1,0 +1,36 @@
+{% extends "base.html" %}
+
+{% block content %}
+
+    <h2>项目状态</h2>
+    <p>{{data.server_name}}: {{data.server_host}}</p>
+    <table class="table table-bordered table-hover">
+        <thead>
+        <tr class="active">
+            <th>序号</th>
+            <th>项目</th>
+            <th>版本</th>
+            <th>爬虫</th>
+            <th>任务</th>
+            <th>删除</th>
+
+        </tr>
+        </thead>
+        <tbody>
+        {% for project in data.projects %}
+
+            <tr>
+                <td>{{ loop.index }}</td>
+                <td>{{ project.project_name }}</td>
+                <td>{{ project.human_version }}</td>
+                <td><a href="/list-spiders?server-host={{data.server_host }}&server-name={{ data.server_name }}&project-name={{ project.project_name }}">查看爬虫</a></td>
+                <td><a href="/list-jobs?server-host={{data.server_host }}&server-name={{ data.server_name }}&project-name={{ project.project_name }}">查看任务</a></td>
+                <td><a href="/delete-version?server-host={{data.server_host }}&server-name={{ data.server_name }}&project-name={{ project.project_name }}&version={{ project.version }}">删除版本</a></td>
+
+            </tr>
+
+        {% endfor %}
+        </tbody>
+
+    </table>
+{% endblock %}

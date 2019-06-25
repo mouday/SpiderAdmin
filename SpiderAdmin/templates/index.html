@@ -1,0 +1,64 @@
+{% extends "base.html" %}
+
+{% block content %}
+    <h2>服务器状态</h2>
+
+    <table class="table table-bordered table-hover">
+     <tbody>
+     <tr class="active">
+    <th>序号</th>
+    <th>服务器名称</th>
+    <th>服务器地址</th>
+    <th>服务器状态</th>
+    <th>pending</th>
+    <th>running</th>
+    <th>finished</th>
+    <th>项目</th>
+    <th>取消所有</th>
+    </tr>
+
+
+    {% for server in servers %}
+        <tr>
+        <td>{{ loop.index }}</td>
+        <td>{{ server.server_name }}</td>
+        <td><a href="{{ server.server_host }}">{{ server.server_host }}</a></td>
+        <td>{{ server.server_status.status }}</td>
+        <td>{{ server.server_status.pending }}</td>
+        <td>{{ server.server_status.running }}</td>
+        <td>{{ server.server_status.finished }}</td>
+        <td><a href="/list-projects?server-host={{server.server_host }}&server-name={{ server.server_name }}">查看项目</a></td>
+        <td><button class="btn btn-warning btn-sm" data-toggle="modal" data-target="#myModal" onclick="cancel('{{ server.server_name }}', '{{ server.server_host }}')">取消所有</button></td>
+        </tr>
+    {% endfor %}
+    
+    </tbody>
+    </table>
+
+
+    <!-- 模态框（Modal） -->
+	<div class="modal fade" id="myModal" tabindex="-1" role="dialog" aria-labelledby="myModalLabel" aria-hidden="true">
+		<div class="modal-dialog">
+			<div class="modal-content">
+				<div class="modal-header">
+					<button type="button" class="close" data-dismiss="modal" aria-hidden="true">&times;</button>
+					<h4 class="modal-title" id="myModalTitle">确认取消所有爬虫？</h4>
+				</div>
+				<div class="modal-body" id="myModalBody">服务器地址：<span id="cancel-message"></span></div>
+				<div class="modal-footer">
+					<button type="button" class="btn btn-default" data-dismiss="modal">取消</button>
+					<a type="button" href="#" class="btn btn-primary" id="myModalAction">确定</a>
+				</div>
+			</div>
+		</div>
+	</div>
+
+    <script>
+    function cancel(serverName, serverHost) {
+        console.log(`server: ${serverName} - ${serverHost}`);
+        $("#cancel-message").text(`${serverName} - ${serverHost}`);
+        $("#myModalAction").attr("href", `/cancel-all?server-host=${serverHost}`)
+    }
+    </script>
+
+{% endblock %}

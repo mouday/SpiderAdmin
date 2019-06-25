@@ -1,0 +1,150 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <meta charset="UTF-8">
+    <!-- 引入样式 -->
+    <link rel="stylesheet" href="/static/element-ui/element-ui@2.9.1.css">
+    <!-- 先引入 Vue -->
+    <script src="/static/element-ui/vue@2.6.10.js"></script>
+    <!-- 引入组件库 -->
+    <script src="/static/element-ui/element-ui@2.9.1.js"></script>
+    <script src="/static/element-ui/axios@0.18.0.min.js"></script>
+    <script src="/static/js/jquery@3.4.1.min.js"></script>
+    <script src="/static/js/jquery.cookie@1.4.1.min.js"></script>
+    <style>
+        .el-main a{
+        text-decoration:none;
+        color:#333;
+    }
+    </style>
+</head>
+<body>
+<el-container>
+    <div id="app">
+        <el-breadcrumb separator="/">
+            <template v-for="item in navs">
+                <el-breadcrumb-item><a :href="item.url"><i class="el-icon-refresh"></i>{{item.name}}</a></el-breadcrumb-item>
+            </template>
+        </el-breadcrumb>
+
+
+        <el-header>
+            <h2>服务器状态</h2>
+        </el-header>
+
+        <el-main>
+            
+            <!-- 显示任务表格开始 -->
+        <template>
+            <el-table :data="tableData" stripe border style="width: 100%">
+
+                <el-table-column prop="index" label="序号" width="80"></el-table-column>
+                <el-table-column prop="server_name" label="服务器名称" width="120"></el-table-column>
+                <el-table-column prop="server_host" label="服务器地址">
+                    <template slot-scope="scope">
+                        <a :href="scope.row.server_host">{{scope.row.server_host}}</a>
+                    </template>
+                </el-table-column>
+                <el-table-column prop="server_status.status" label="服务器状态" width="100"></el-table-column>
+                <el-table-column prop="server_status.pending" label="pending" width="80"></el-table-column>
+                <el-table-column prop="server_status.running" label="running" width="80"></el-table-column>
+                <el-table-column prop="server_status.finished" label="finished" width="80"></el-table-column>
+
+                <el-table-column label="查看项目" width="120">
+                    <template slot-scope="scope">
+                        <el-button size="mini" @click="openProject(scope.row)">
+                            <i class="el-icon-tickets"></i>查看</el-button>
+                    </template>
+                </el-table-column>
+
+                <el-table-column label="重置任务" width="120">
+                    <template slot-scope="scope">
+                        <el-button size="mini" @click="removeAllJob(scope.row)" type="warning">
+                            <i class="el-icon-delete"></i>重置</el-button>
+                    </template>
+                </el-table-column>
+
+            </el-table>
+        </template>
+            <!-- 显示任务表格结束 -->
+        </el-main>
+    </div>
+</el-container>
+</body>
+
+<script>
+    new Vue({
+        el: '#app',
+        data: {
+            tableData: [],
+            server: {
+                name: "",
+                host: ""
+            },
+            navs: [
+                {
+                    name: "刷新状态",
+                    url: "/server-status-vue"
+                }
+                
+            ]
+        },
+        methods: {
+            getStatus: function () {
+                axios.get("/api/ServerStatus"
+                ).then((response) => {
+                    this.tableData = response.data
+                }).catch(() => {
+                    this.tableData = [];
+                    this.$message({
+                        type: 'info',
+                        message: '加载失败'
+                        });
+                    });
+            },
+            openUrl: function(url) {
+                window.open(url, "_self");
+            },
+
+            openProject: function (row) {
+                $.cookie("project_name", row.project_name);
+                $.cookie("server_host", row.server_host);
+                $.cookie("server_name", row.server_name);
+                var url = "/project-vue";
+                window.location.href = url;
+            },
+            removeAllJob: function(row){
+                url = "/api/cancelAll";
+
+                this.$confirm('此操作将移除该服务器上所有任务, 是否继续?', '提示', {
+                    confirmButtonText: '确定',
+                    cancelButtonText: '取消',
+                    type: 'warning'
+                }).then(() => {
+                    axios.get(url, {
+                        params: {
+                            server_host: row.server_host
+                        }}).then((response) => {
+                            this.getStatus();
+                            this.$message({
+                                type: 'success',
+                                message: response.data.message
+                            });
+                    })
+                }).catch(() => {
+                    this.$message({
+                        type: 'info',
+                        message: '已取消删除'
+                    });
+                });
+            },
+            addServer: function () {
+                
+            }
+        },
+        created() {
+            this.getStatus();
+    }
+    })
+</script>
+</html>

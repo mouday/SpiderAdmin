@@ -1,0 +1,29 @@
+{% extends "base.html" %}
+{% block content %}
+    <body>
+    <h1>爬虫列表</h1>
+    <p>{{data.server_name}}: {{data.server_host}}</p>
+    <table class="table table-bordered table-hover">
+        <thead>
+        <tr class="active">
+            <th>序号</th>
+            <th>爬虫</th>
+            <th>运行</th>
+
+        </tr>
+        </thead>
+        <tbody>
+        {% for spider_name in data.spiders %}
+
+            <tr>
+                <td>{{ loop.index }}</td>
+                <td>{{ spider_name }}</td>
+                <td>
+                    <a href="/schedule?server-host={{ data.server_host }}&server-name={{ data.server_name }}&project-name={{ data.project_name }}&spider-name={{ spider_name }}">运行</a>
+                </td>
+            </tr>
+        {% endfor %}
+        </tbody>
+
+    </table>
+{% endblock %}

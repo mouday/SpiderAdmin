@@ -1,0 +1,154 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <meta charset="UTF-8">
+    <!-- 引入样式 -->
+    <link rel="stylesheet" href="/static/element-ui/element-ui@2.9.1.css">
+    <!-- 先引入 Vue -->
+    <script src="/static/element-ui/vue@2.6.10.js"></script>
+    <!-- 引入组件库 -->
+    <script src="/static/element-ui/element-ui@2.9.1.js"></script>
+    <script src="/static/element-ui/axios@0.18.0.min.js"></script>
+    <script src="/static/js/jquery@3.4.1.min.js"></script>
+    <script src="/static/js/jquery.cookie@1.4.1.min.js"></script>
+    <style>
+        .el-main a{
+        text-decoration:none;
+        color:#333;
+    }
+    </style>
+</head>
+<body>
+<el-container>
+    <div id="app">
+        <el-breadcrumb separator="/">
+            <template v-for="item in navs">
+                <el-breadcrumb-item><a :href="item.url">{{item.name}}</a></el-breadcrumb-item>
+            </template>
+        </el-breadcrumb>
+
+        <el-header>
+        
+            <h2>任务列表</h2>
+            
+        </el-header>
+        
+        <el-main>
+            <!-- 显示任务表格开始 -->
+        <template>
+            <el-table :data="tableData" stripe border style="width: 100%">
+                <el-table-column  type="index" label="序号" width="50"></el-table-column>
+                <el-table-column prop="spider" label="爬虫名称"></el-table-column>
+                <el-table-column prop="status" label="运行状态" width="80"></el-table-column>
+                <!-- <el-table-column prop="job_id" label="任务id"></el-table-column> -->
+                <el-table-column prop="start_time" label="开始时间" width="170"></el-table-column>
+                <el-table-column prop="end_time" label="结束时间" width="170"></el-table-column>
+                <el-table-column prop="timestamp" label="持续时间" ></el-table-column>
+                
+
+                <el-table-column label="取消爬虫" width="90">
+                    <template slot-scope="scope">
+                        <el-button size="mini" @click="cancelSpider(scope.row)" type="warning">
+                            <i class="el-icon-circle-close"></i>取消</el-button>
+                    </template>
+                </el-table-column>
+
+                <el-table-column label="运行爬虫" width="90">
+                    <template slot-scope="scope">
+                        <el-button size="mini" @click="scheduler(scope.row.spider)" type="success">
+                            <i class="el-icon-video-play"></i>运行</el-button>
+                    </template>
+                </el-table-column>
+
+                <el-table-column label="查看日志" width="90">
+                    <template slot-scope="scope">
+                        <el-button size="mini" @click="getLog(scope.row.spider, scope.row.job_id)" type="primary">
+                            <i class="el-icon-document"></i>查看</el-button>
+                    </template>
+                </el-table-column>
+            </el-table>
+        </template>
+            <!-- 显示任务表格结束 -->
+        </el-main>
+    </div>
+</el-container>
+</body>
+
+<script>
+    new Vue({
+        el: '#app',
+        data: {
+            
+            tableData: [],
+            formData: {
+                server_name: $.cookie("server_name"),
+                server_host: $.cookie("server_host"),
+                project_name: $.cookie("project_name"),
+            },
+            navs: [
+                {
+                    name: $.cookie("server_name"),
+                    url: "/project-vue"
+                },
+                {
+                    name: $.cookie("project_name"),
+                    url: "/job-vue"
+                }
+            ]
+        },
+        methods: {
+            getjobs: function () {
+                axios.get("/api/listJobs", {
+                    params: this.formData
+                }).then((response) => {
+                    this.tableData = response.data.jobs;
+                }).catch(() => {
+                    this.$message.info("加载失败");
+                });
+            },
+            removeVersion: function() {
+
+            },
+
+            getLog: function (spider_name, job_id) {
+                var url = `/api/log?server_name=${this.formData.server_name}&`
+                + `server_host=${this.formData.server_host}&`
+                + `project_name=${this.formData.project_name}&`
+                + `spider_name=${spider_name}&`
+                + `job_id=${job_id}`;
+                window.open(url, "_blank");
+            },
+
+            scheduler: function (spider_name) {
+                axios.get("/api/schedule", {
+                    params: {
+                        server_host: this.formData.server_host,
+                        server_name: this.formData.server_name,
+                        project_name: this.formData.project_name,
+                        spider_name: spider_name
+                    }
+                }).then((response) => {
+                    this.getjobs();
+                    this.$message.success("运行成功" + response.data.message);
+                });
+            },
+            cancelSpider: function(row) {
+                axios.get("/api/cancel", {
+                    params: {
+                        server_host: this.formData.server_host,
+                        server_name: this.formData.server_name,
+                        project_name: this.formData.project_name,
+                        job_id: row.job_id
+                    }
+                }).then((response) => {
+                    this.getjobs();
+                    this.$message.success("取消成功" + response.data.message);
+                });
+            }
+        },
+        created() {
+            this.getjobs();
+        }
+    })
+</script>
+</html>

@@ -1,0 +1,120 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <meta charset="UTF-8">
+    <!-- 引入样式 -->
+    <link rel="stylesheet" href="/static/element-ui/element-ui@2.9.1.css">
+    <!-- 先引入 Vue -->
+    <script src="/static/element-ui/vue@2.6.10.js"></script>
+    <!-- 引入组件库 -->
+    <script src="/static/element-ui/element-ui@2.9.1.js"></script>
+    <script src="/static/element-ui/axios@0.18.0.min.js"></script>
+    <script src="/static/js/jquery@3.4.1.min.js"></script>
+    <script src="/static/js/jquery.cookie@1.4.1.min.js"></script>
+    <style>
+        .el-main a{
+        text-decoration:none;
+        color:#333;
+    }
+    </style>
+</head>
+<body>
+<el-container>
+    <div id="app">
+        <el-breadcrumb separator="/">
+            <template v-for="item in navs">
+                <el-breadcrumb-item><a :href="item.url">{{item.name}}</a></el-breadcrumb-item>
+            </template>
+        
+        </el-breadcrumb>
+
+        <el-header>
+            <h2>爬虫列表</h2>
+        
+        </el-header>
+        
+        <el-main>
+            <!-- 显示任务表格开始 -->
+        <template>
+            <el-table :data="tableData" stripe border style="width: 100%">
+                <el-table-column  type="index" label="序号" width="80"></el-table-column>
+                <el-table-column prop="spider_name" label="爬虫名称"></el-table-column>
+                
+                <el-table-column label="设置定时" width="90">
+                    <template slot-scope="scope">
+                        <el-button size="mini" @click="setScheduler(scope.row.spider_name)" type="primary">
+                            <i class="el-icon-set-up"></i>设置</el-button>
+                    </template>
+                </el-table-column>
+
+                <el-table-column label="运行爬虫" width="90">
+                    <template slot-scope="scope">
+                        <el-button size="mini" @click="scheduler(scope.row.spider_name)" type="success">
+                            <i class="el-icon-video-play"></i>运行</el-button>
+                    </template>
+                </el-table-column>
+            </el-table>
+        </template>
+            <!-- 显示任务表格结束 -->
+        </el-main>
+    </div>
+</el-container>
+</body>
+
+<script>
+    new Vue({
+        el: '#app',
+        data: {
+            crontab: "",
+            tableData: [],
+            formData: {
+                server_name: $.cookie("server_name"),
+                server_host: $.cookie("server_host"),
+                project_name: $.cookie("project_name"),
+            },
+            navs: [
+                {
+                    name: $.cookie("server_name"),
+                    url: "/project-vue"
+                },
+                {
+                    name: $.cookie("project_name"),
+                    url: "/spider-vue"
+                }
+            ]
+        },
+        methods: {
+            getSpiders: function () {
+                axios.get("/api/listSpiders", {
+                    params: this.formData
+                }).then((response) => {
+                    this.tableData = response.data.spiders;
+                }).catch(() => {
+                    this.$message.info("加载失败");
+                });
+            },
+
+            setScheduler: function(spider_name) {
+                $.removeCookie("job_id");
+                $.cookie("spider_name", spider_name);
+                window.location.href = "/scheduler-modify-vue";
+            },
+            scheduler: function (spider_name) {
+                axios.get("/api/schedule", {
+                    params: {
+                        server_host: this.formData.server_host,
+                        server_name: this.formData.server_name,
+                        project_name: this.formData.project_name,
+                        spider_name: spider_name
+                    }
+                }).then((response) => {
+                    this.$message.success("运行成功" + response.data.message);
+                });
+            }
+        },
+        created() {
+            this.getSpiders();
+        }
+    })
+</script>
+</html>

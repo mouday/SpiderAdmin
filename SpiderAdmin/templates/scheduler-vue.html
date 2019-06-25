@@ -1,0 +1,298 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <meta charset="UTF-8">
+    <!-- 引入样式 -->
+    <link rel="stylesheet" href="/static/element-ui/element-ui@2.9.1.css">
+    <!-- 先引入 Vue -->
+    <script src="/static/element-ui/vue@2.6.10.js"></script>
+    <!-- 引入组件库 -->
+    <script src="/static/element-ui/element-ui@2.9.1.js"></script>
+    <script src="/static/element-ui/axios@0.18.0.min.js"></script>
+    <script src="/static/js/jquery@3.4.1.min.js"></script>
+    <script src="/static/js/jquery.cookie@1.4.1.min.js"></script>
+    <style>
+        .el-main a{
+        text-decoration:none;
+        color:#333;
+    }
+    .line{
+        margin-top: 10px;
+        margin-bottom: 10px;
+    }
+    </style>
+</head>
+<body>
+<el-container>
+    <div id="app">
+        <el-breadcrumb separator="/">
+            <template v-for="item in navs">
+                <el-breadcrumb-item><a :href="item.url"><i class="el-icon-refresh"></i>{{item.name}}</a></el-breadcrumb-item>
+            </template>
+        </el-breadcrumb>
+
+        <el-header>
+            <h2>定时列表</h2>
+        
+        </el-header>
+        
+        <el-main>
+            <template>
+                <div>
+                    <el-row>
+                        
+                        <el-button @click="startManage" :type="schedulerData.start_type" size="small"><i class="el-icon-circle-check"></i>{{schedulerData.start_text}}</el-button>
+                        <el-button @click="pauseManage" :type="schedulerData.pause_type" size="small"><i class="el-icon-circle-close"></i>{{schedulerData.pause_text}}</el-button>
+                        <el-button @click="removeAllJobs" type="danger" size="small"><i class="el-icon-delete"></i>移除所有任务</el-button>
+        
+                    </el-row>
+                   <div class="line"></div>
+
+                </div>
+            </template>
+            <!-- 显示任务表格开始 -->
+            <template>
+                <el-table :data="tableData" stripe border style="width: 100%">
+                    <el-table-column type="index" label="序号" width="50"></el-table-column>
+                    <el-table-column prop="server_name" label="服务器"></el-table-column>
+                    <el-table-column prop="project_name" label="项目"></el-table-column>
+                    <el-table-column prop="spider_name" label="爬虫名称"></el-table-column>
+                    <el-table-column prop="crontab" label="定时"></el-table-column>
+                    <el-table-column prop="last_run_time" label="上次运行时间" width="170"></el-table-column>
+                    <el-table-column prop="next_run_time" label="下次运行时间" width="170"></el-table-column>
+                    <el-table-column prop="modify_time" label="修改时间" width="170"></el-table-column>
+                    <!-- <el-table-column prop="pending" label="pending"></el-table-column> -->
+                    
+                    <el-table-column label="查看日志" width="90">
+                        <template slot-scope="scope">
+                            <el-button size="mini" @click="showLog(scope.row)" type="info">
+                                <i class="el-icon-document"></i>查看</el-button>
+                        </template>
+                    </el-table-column>
+
+                    <el-table-column label="任务控制" width="90">
+                        <template slot-scope="scope">
+                            <el-button size="mini" @click="manageJob(scope.row.job_function, scope.row.job_id)" :type="scope.row.job_color">
+                                <i class="el-icon-video-pause"></i>{{scope.row.job_manage}}</el-button>
+                        </template>
+                    </el-table-column>    
+
+                    <el-table-column label="移除任务" width="90">
+                        <template slot-scope="scope">
+                            <el-button size="mini" @click="removeJob(scope.row.job_id)" type="danger">
+                                <i class="el-icon-delete"></i>移除</el-button>
+                        </template>
+                    </el-table-column>
+            
+                    <el-table-column label="修改任务" width="90">
+                        <template slot-scope="scope">
+                            <el-button size="mini" @click="modifyJob(scope.row.job_id)" type="primary">
+                                <i class="el-icon-edit-outline"></i>修改</el-button>
+                        </template>
+                    </el-table-column>
+            
+                    <el-table-column label="运行爬虫" width="90">
+                        <template slot-scope="scope">
+                            <el-button size="mini" @click="runJob(scope.row.job_id)" type="success">
+                                <i class="el-icon-video-play"></i>运行</el-button>
+                        </template>
+                    </el-table-column>
+                </el-table>
+            </template>
+            <!-- 显示任务表格结束 -->
+</el-main>
+    </div>
+</el-container>
+</body>
+
+<script>
+    new Vue({
+        el: '#app',
+        data: {
+            schedulerData:{
+                start_text: "",
+                start_type: "",
+                start_function: "",
+
+                pause_text: "",
+                pause_type: "",
+                pause_function:""
+            },
+            tableData: [],
+            formData: {
+                server_name: $.cookie("server_name"),
+                server_host: $.cookie("server_host"),
+                project_name: $.cookie("project_name"),
+                spider_name: $.cookie("spider_name"),
+                crontab: "* * * * *",
+            },
+            navs: [
+                {
+                    name: "刷新列表",
+                    url: "/scheduler-vue"
+                }
+
+            ]
+        },
+        methods: {
+            /*
+            任务管理
+            */
+            getJobs: function () {
+                axios.get("/scheduler/getJobs"
+                ).then((response) => {
+                    this.schedulerData = response.data.scheduler_data;
+                    this.tableData = response.data.jobs;
+                }).catch(() => {
+                    this.$message.info("加载失败");
+                });
+            },
+           
+            runJob: function (job_id) {
+                axios.get("/scheduler/runJob", {
+                    params: {
+                        job_id: job_id
+                    }
+                }).then((response) => {
+                    this.$message.success(response.data.message);
+                });
+            },
+
+            addJob: function () {
+                axios.post("/scheduler/addJob", this.formData
+                ).then((response) => {
+                    this.getJobs();
+                    this.$message.success("任务添加成功");
+                }).catch(() => {
+                    this.$message.info("加载失败");
+                });
+            },
+
+            removeJob: function (job_id) {
+                this.$confirm('从任务计划中移除此计划，是否继续?', '提示', {
+                    confirmButtonText: '确定',
+                    cancelButtonText: '取消',
+                    type: 'warning'
+                }).then(() => {
+                    axios.get("/scheduler/removeJob", {
+                        params: {
+                            job_id: job_id
+                        }
+                    }
+                    ).then((response) => {
+                        this.getJobs();
+                        this.$message.success(response.data.message);
+                    });
+                }).catch(() => {
+                    this.$message({
+                        type: 'info',
+                        message: '已取消移除'
+                    });
+                });
+                
+            },
+            modifyJob: function (job_id) {
+                var url = "/scheduler-modify-vue";
+                $.cookie("job_id", job_id);
+                window.location.href = url;
+            },
+
+            manageJob: function (job_function, job_id) {
+                axios.get(`/scheduler/${job_function}`, {
+                    params: {
+                        job_id: job_id
+                    }
+                }
+                ).then((response) => {
+                    this.getJobs();
+                    this.$message(
+                        {
+                            type: response.data.message_type,
+                            message: response.data.message
+                    });
+                });
+            },
+            
+            showLog: function (row) {
+                var server_host = row.server_host;
+                
+                String.prototype.endWith = function (endStr) {
+                    var d = this.length - endStr.length;
+                    return (d >= 0 && this.lastIndexOf(endStr) == d)
+                }
+
+                function endsWith(str, char) {
+                    var length = str.length;
+                    
+                    if (length > 0 && length - 1 === str.lastIndexOf(char) ) {
+                        return true;
+                    } else {
+                        return false;
+                    }
+
+                }
+                // 兼容配置文件以 / 结尾的域名
+                if (!endsWith(server_host, "/")) {
+                    server_host = server_host + "/";
+                }
+
+                var url = `${server_host}logs/${row.project_name}/${row.spider_name}/`;
+                window.open(url, "_blank");
+            },
+                
+            /*
+            调度器管理
+            */
+            startManage: function () {
+                axios.get(`/scheduler/${this.schedulerData.start_function}`
+                ).then((response) => {
+                    this.getJobs();
+                    this.$message(
+                        {
+                            type: response.data.message_type,
+                            message: response.data.message
+                        });
+                });
+            },
+
+            pauseManage: function () {
+                axios.get(`/scheduler/${this.schedulerData.pause_function}`
+                ).then((response) => {
+                    this.getJobs();
+                    this.$message(
+                        {
+                            type: response.data.message_type,
+                            message: response.data.message
+                        });
+                });
+            },
+
+            removeAllJobs: function () {
+                this.$confirm('移除所有计划任务，是否继续?', '提示', {
+                    confirmButtonText: '确定',
+                    cancelButtonText: '取消',
+                    type: 'warning'
+                }).then(() => {
+                    
+                    axios.get("/scheduler/removeAllJobs"
+                    ).then((response) => {
+                        this.getJobs();
+                        this.$message.success(response.data.message);
+                    });
+                }).catch(() => {
+                    this.$message({
+                        type: 'info',
+                        message: '已取消移除'
+                    });
+                });
+                
+            }
+
+
+        },
+        created() {
+            this.getJobs();
+        }
+    })
+</script>
+</html>

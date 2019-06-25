@@ -1,0 +1,133 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <meta charset="UTF-8">
+    <!-- 引入样式 -->
+    <link rel="stylesheet" href="/static/element-ui/element-ui@2.9.1.css">
+    <!-- 先引入 Vue -->
+    <script src="/static/element-ui/vue@2.6.10.js"></script>
+    <!-- 引入组件库 -->
+    <script src="/static/element-ui/element-ui@2.9.1.js"></script>
+    <script src="/static/element-ui/axios@0.18.0.min.js"></script>
+    <script src="/static/js/jquery@3.4.1.min.js"></script>
+    <script src="/static/js/jquery.cookie@1.4.1.min.js"></script>
+    <style>
+        .el-main a{
+        text-decoration:none;
+        color:#333;
+    }
+    body{
+        width: 600px;
+    }
+    </style>
+</head>
+<body>
+<el-container>
+    <div id="app">
+        <el-breadcrumb separator="/">
+            <template v-for="item in navs">
+                <el-breadcrumb-item><a :href="item.url">{{item.name}}</a></el-breadcrumb-item>
+            </template>
+        </el-breadcrumb>
+
+        <el-header>
+            <h2>{{title}}</h2>
+        
+        </el-header>
+        
+        <el-main>
+            <!-- 添加任务表单开始 -->
+            <template>
+                <el-form ref="form" :model="formData" label-width="80px">
+                    <el-form-item label="服务器">
+                        <el-input v-model="formData.server_name"></el-input>
+                    </el-form-item>
+                    <el-form-item label="项目">
+                        <el-input v-model="formData.project_name"></el-input>
+                    </el-form-item>
+                    <el-form-item label="爬虫">
+                        <el-input v-model="formData.spider_name"></el-input>
+                    </el-form-item>
+                    <el-form-item label="定时">
+                        <el-input v-model="formData.crontab"></el-input>
+                    </el-form-item>
+                    <el-form-item>
+                        <el-button type="info" @click="cancel">取消</el-button>
+                        <el-button type="primary" @click="addJob">确定</el-button>
+                    </el-form-item>
+                </el-form>
+            </template>
+            <!-- 添加任务表单结束 -->
+        </el-main>
+    </div>
+</el-container>
+</body>
+
+<script>
+    new Vue({
+        el: '#app',
+        data: {
+            title: "添加任务",
+            formData: {},
+            navs: [
+                 {
+                    name: "任务列表",
+                    url: "/scheduler-vue"
+                },
+                {
+                    name: "修改任务",
+                    url: "/scheduler-modify-vue"
+                }
+            ]
+        },
+        methods: {
+           jobDetail: function (job_id) {
+                axios.get("/scheduler/jobDetail", {
+                    params: {
+                        job_id: job_id
+                    }
+                }).then((response) => {
+                    this.title = "修改任务";
+                    this.formData = response.data;
+                });
+            },
+
+            initFormData: function () {
+                var job_id = $.cookie("job_id");
+               
+                // 如果有job_id 就是修改，那么先去服务端取最新数据
+                if (job_id !== undefined) {
+                    this.jobDetail(job_id);
+                }
+                // 添加数据
+                else {
+                    this.formData = {
+                        server_name: $.cookie("server_name"),
+                        server_host: $.cookie("server_host"),
+                        project_name: $.cookie("project_name"),
+                        spider_name: $.cookie("spider_name"),
+                        crontab: "* * * * *",
+                    };
+                }
+            },
+            cancel: function () {
+                window.location.href = "/scheduler-vue";    
+            },
+
+            addJob: function () {
+                axios.post("/scheduler/addJob", this.formData
+                ).then((response) => {
+                    this.jobDetail(this.formData.job_id);
+                    this.$message({
+                        type: response.data.message_type,
+                        message: response.data.message
+                    });
+                });
+            }
+        },
+        created() {
+            this.initFormData();
+        }
+    })
+</script>
+</html>

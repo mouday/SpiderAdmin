@@ -1,0 +1,54 @@
+{% extends "base.html" %}
+
+{% block content %}
+    <h2>任务列表</h2>
+        <p>{{data.server_name}}: {{data.server_host}}</p>
+
+    <table class="table table-bordered table-hover">
+        <thead>
+        <tr class="active">
+            <th>序号</th>
+            <th>爬虫名称</th>
+            <th>运行状态</th>
+            <th>开始时间</th>
+            <th>结束时间</th>
+            <th>运行时间</th>
+            <th>操作</th>
+            <th>查看日志</th>
+        </tr>
+        </thead>
+        <tbody>
+        {% for job in data.jobs %}
+
+            <tr>
+                <td>{{ loop.index }}</td>
+                <td>{{ job.spider }}</td>
+                <td>{{ job.status }}</td>
+
+                <td>{{ job.start_time }}</td>
+                <td>{{ job.end_time }}</td>
+                <td>{{ job.timestamp }}</td>
+
+                {% if job.status == "finished" %}
+                    <td>
+                        <a href="/schedule?server-host={{data.server_host }}&server-name={{ data.server_name }}&project-name={{ data.project_name }}&spider-name={{ job.spider }}">再次运行</a>
+                    </td>
+                {% else %}
+                    <td>
+                        <a href="/cancel?server-host={{ data.server_host }}&server-name={{ data.server_name }}&project-name={{ data.project_name }}&job-id={{ job.job_id }}">取消</a>
+                    </td>
+                {% endif %}
+                {% if job.status == "pending" %}
+                    <td></td>
+                {% else %}
+                    <td>
+                        <a href="/log?server-host={{data.server_host }}&project-name={{ data.project_name }}&spider-name={{ job.spider }}&job-id={{ job.job_id  }}">日志</a>
+
+                    </td>
+                {% endif %}
+            </tr>
+        {% endfor %}
+        </tbody>
+    </table>
+
+{% endblock %}
