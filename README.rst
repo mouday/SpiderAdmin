@@ -5,6 +5,10 @@ SpiderAdmin
    :alt: PyPI
 
    PyPI
+
+-  github: https://github.com/mouday/SpiderAdmin
+-  pypi: https://pypi.org/project/spideradmin/
+
 功能介绍
 --------
 
@@ -56,5 +60,6 @@ SpiderAdmin
 TODO
 ----
 
-[STRIKEOUT:1. 增加登录页面做权限校验] [STRIKEOUT:2.
-增加定时设置的多样性] [STRIKEOUT:3. 增加定时随机运行]
+1. [STRIKEOUT:增加登录页面做权限校验]
+2. [STRIKEOUT:增加定时设置的多样性]
+3. [STRIKEOUT:增加定时随机运行]

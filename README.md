@@ -2,6 +2,10 @@
 
 ![PyPI](https://img.shields.io/pypi/v/spideradmin.svg)
 
+- github: https://github.com/mouday/SpiderAdmin
+- pypi: https://pypi.org/project/spideradmin/
+
+
 ## 功能介绍
 1. 对Scrapyd 接口进行可视化封装，对Scrapy爬虫项目进行删除 和 查看
 

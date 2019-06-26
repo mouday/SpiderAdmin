@@ -4,6 +4,7 @@ graft spideradmin/static
 graft spideradmin/templates
 graft spideradmin/api_app
 graft spideradmin/html_app
+graft spideradmin/image
 graft spideradmin/scheduler_app
 global-include *.py
 global-exclude *.pyc

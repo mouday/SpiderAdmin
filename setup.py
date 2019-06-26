@@ -21,6 +21,9 @@ pip uninstall spideradmin -y
 打包
 python setup.py sdist bdist_wheel
 
+检查
+twine check dist/*
+
 上传pypi
 twine upload dist/*
 
@@ -48,15 +51,15 @@ if os.path.exists("README.md"):
     md_to_rst("README.md", "README.rst")
 
 long_description = 'a spider admin based scrapyd api and APScheduler'
-if os.path.exists('README.rst'):
-    long_description = io.open('README.rst', encoding="utf-8").read()
+# if os.path.exists('README.md'):
+#     long_description = io.open('README.md', encoding="utf-8").read()
 
 setup(
     name='spideradmin',
     version=VERSION,
     description="a spider admin based scrapyd api and APScheduler",
     long_description=long_description,
-    long_description_content_type="text/x-rst",
+    long_description_content_type="text/markdown",
     classifiers=[],  # Get strings from http://pypi.python.org/pypi?%3Aaction=list_classifiers
     keywords='spider admin',
     author='Peng Shiyu',
