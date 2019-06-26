@@ -6,3 +6,4 @@ __pycache__
 build/
 dist/
 spideradmin.egg-info/
+*.log

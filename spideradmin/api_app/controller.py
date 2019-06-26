@@ -15,11 +15,11 @@ from spideradmin.api_app.scrapyd_utils import get_server_status, cancel_all_spid
 from tinydb import TinyDB, Query
 
 sys.path.insert(0, os.getcwd())
+
 try:
-    from config import SCRAPYD_SERVERS
+    import config
 except Exception as e:
-    print(e)
-    from spideradmin.default_config import SCRAPYD_SERVERS
+    from spideradmin import default_config as config
 
 api_app = Blueprint(name="api", import_name=__name__)
 db = TinyDB("server.db")
@@ -35,7 +35,7 @@ def get_servers():
             "server_name": server_name,
             "server_host": server_host
         }
-        for server_name, server_host in SCRAPYD_SERVERS
+        for server_name, server_host in config.SCRAPYD_SERVERS
     ]
 
     user_servers.extend(defualt_servers)

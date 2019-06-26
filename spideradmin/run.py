@@ -14,17 +14,26 @@ from spideradmin.api_app.controller import api_app
 from spideradmin.html_app.controller import html_app
 from spideradmin.scheduler_app.controller import scheduler_app
 
+from flask_basicauth import BasicAuth
+
 # 把当前目录加入执行路径，不然找不到用户自定义config.py文件
 sys.path.insert(0, os.getcwd())
 
 try:
-    from config import host, port
+    import config
 except Exception as e:
-    print(e)
-    from spideradmin.default_config import host, port
-
+    from spideradmin import default_config as config
 
 app = Flask(__name__)
+
+app.secret_key = config.SECRET_KEY
+
+app.config['BASIC_AUTH_USERNAME'] = config.BASIC_AUTH_USERNAME
+app.config['BASIC_AUTH_PASSWORD'] = config.BASIC_AUTH_PASSWORD
+
+app.config['BASIC_AUTH_FORCE'] = config.BASIC_AUTH_FORCE
+
+basic_auth = BasicAuth(app)
 
 app.register_blueprint(blueprint=html_app, url_prefix="/")
 app.register_blueprint(blueprint=api_app, url_prefix="/api")
@@ -46,9 +55,8 @@ def main():
         else:
             print("you may need: spideradmin init ?")
     else:
-        app.run(host, port)
+        app.run(config.HOST, config.PORT)
 
 
 if __name__ == '__main__':
-    # app.run(debug=True)
-    app.run(host, port)
+    app.run(debug=True)

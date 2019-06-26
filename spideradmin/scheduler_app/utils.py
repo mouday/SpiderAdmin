@@ -5,7 +5,6 @@
 import os
 from datetime import datetime
 
-
 # 时间格式化
 DATE_FORMAT = "%Y-%m-%d"
 DATE_TIME_FORMAT = "%Y-%m-%d %H:%M:%S"
@@ -25,7 +24,11 @@ def get_log_path(log_dir, job_id):
 
 
 def parse_crontab(crontab):
-    crontabs = crontab.split(" ")
+    try:
+        crontabs = crontab.split(" ")
+    except Exception:
+        return None
+
     if len(crontabs) == 5:
         return crontabs
     else:
@@ -52,22 +55,37 @@ def get_job_info(job):
     if isinstance(next_run_time, datetime):
         next_run_time = next_run_time.strftime("%Y-%m-%d %H:%M:%S")
 
+    if hasattr(job, "kwargs"):
+        kwargs = job.kwargs
+        if not kwargs:
+            kwargs = {}
+    else:
+        kwargs = {}
+
     row = {
-        "server_host": job.kwargs.get("server_host"),
-        "server_name": job.kwargs.get("server_name"),
-        "project_name": job.kwargs.get("project_name"),
-        "spider_name": job.kwargs.get("spider_name"),
+        "server_host": kwargs.get("server_host"),
+        "server_name": kwargs.get("server_name"),
+        "project_name": kwargs.get("project_name"),
+        "spider_name": kwargs.get("spider_name"),
 
         "job_manage": "暂停" if next_run_time else "继续",
         "job_function": "pauseJob" if next_run_time else "resumeJob",
         "job_color": "warning" if next_run_time else "success",
-        "crontab": get_crontab(job),
+
         "next_run_time": next_run_time,
         # "timezone": job.trigger.timezone,
         "job_id": job.id,
         "pending": job.pending,
-        "modify_time": job.kwargs.get("modify_time"),
-        "last_run_time": job.kwargs.get("last_run_time"),
+
+        "modify_time": kwargs.get("modify_time"),
+        "last_run_time": kwargs.get("last_run_time"),
+
+        "trigger": kwargs.get("trigger"),
+        "cron": kwargs.get("cron"),
+        "interval": kwargs.get("interval"),
+        "random": kwargs.get("random"),
+        "run_datetime": kwargs.get("run_datetime"),
+        "times": kwargs.get("times")
     }
     return row
 

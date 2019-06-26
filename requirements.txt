@@ -2,3 +2,4 @@ requests>=2.22.0
 Flask>=1.0.3
 APScheduler>=3.6.0
 tinydb>=3.13.0
+Flask-BasicAuth>=0.2.0

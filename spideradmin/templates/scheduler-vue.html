@@ -55,9 +55,17 @@
                 <el-table :data="tableData" stripe border style="width: 100%">
                     <el-table-column type="index" label="序号" width="50"></el-table-column>
                     <el-table-column prop="server_name" label="服务器"></el-table-column>
-                    <el-table-column prop="project_name" label="项目"></el-table-column>
+                    <el-table-column prop="project_name" label="项目" width="150"></el-table-column>
                     <el-table-column prop="spider_name" label="爬虫名称"></el-table-column>
-                    <el-table-column prop="crontab" label="定时"></el-table-column>
+                    <el-table-column prop="trigger" label="定时类型"></el-table-column>
+                    
+                    <el-table-column label="定时" width="150">
+                        <template slot-scope="scope">
+                            {{showTrigger(scope.row)}}
+                        </template>
+                    </el-table-column>
+
+                    <el-table-column prop="times" label="已运行次数" width="100"></el-table-column>
                     <el-table-column prop="last_run_time" label="上次运行时间" width="170"></el-table-column>
                     <el-table-column prop="next_run_time" label="下次运行时间" width="170"></el-table-column>
                     <el-table-column prop="modify_time" label="修改时间" width="170"></el-table-column>
@@ -239,7 +247,11 @@
                 var url = `${server_host}logs/${row.project_name}/${row.spider_name}/`;
                 window.open(url, "_blank");
             },
-                
+            
+            showTrigger: function (row) {
+                return row[row.trigger];
+            },
+
             /*
             调度器管理
             */

@@ -11,6 +11,7 @@
     <script src="/static/element-ui/axios@0.18.0.min.js"></script>
     <script src="/static/js/jquery@3.4.1.min.js"></script>
     <script src="/static/js/jquery.cookie@1.4.1.min.js"></script>
+    
     <style>
         .el-main a{
         text-decoration:none;
@@ -18,6 +19,9 @@
     }
     body{
         width: 600px;
+    }
+    .hide {
+        display: none;
     }
     </style>
 </head>
@@ -48,9 +52,38 @@
                     <el-form-item label="爬虫">
                         <el-input v-model="formData.spider_name"></el-input>
                     </el-form-item>
-                    <el-form-item label="定时">
-                        <el-input v-model="formData.crontab"></el-input>
+                    
+                    <el-form-item label="定时类型" >
+                        <el-select v-model="formData.trigger" @change="changeTrigger" placeholder="请选择定时类型">
+                            <el-option v-for="item in triggers" :key="item.value" :label="item.label" :value="item.value">
+                            </el-option>
+                        </el-select>
                     </el-form-item>
+
+                    <div class="cron">
+                    <el-form-item label="crontab">
+                        <el-input v-model="formData.cron"placeholder="* * * * *"></el-input>
+                    </el-form-item>
+                    </div>
+
+                    <div class="interval hide">
+                        <el-form-item label="时间间隔">
+                            <el-input v-model="formData.interval" placeholder="单位: S 秒"></el-input>
+                        </el-form-item>
+                    </div>
+
+                    <div class="random hide">
+                        <el-form-item label="随机间隔">
+                            <el-input v-model="formData.random" placeholder="单位: S 秒 例如：10-20"></el-input>
+                        </el-form-item>
+                    </div>
+
+                    <div class="date hide">
+                    <el-form-item label="执行时间">
+                        <el-input v-model="formData.run_datetime" placeholder="例如：2019-06-26 19:18:00"></el-input>
+                    </el-form-item>
+                    </div>
+
                     <el-form-item>
                         <el-button type="info" @click="cancel">取消</el-button>
                         <el-button type="primary" @click="addJob">确定</el-button>
@@ -64,11 +97,13 @@
 </body>
 
 <script>
-    new Vue({
+    var app = new Vue({
         el: '#app',
         data: {
             title: "添加任务",
-            formData: {},
+            formData: {
+                
+            },
             navs: [
                  {
                     name: "任务列表",
@@ -77,6 +112,24 @@
                 {
                     name: "修改任务",
                     url: "/scheduler-modify-vue"
+                }
+            ],
+            triggers: [
+                {
+                    value: "date",
+                    label: "单次任务"
+                },
+                {
+                    value: "cron",
+                    label: "定时任务"
+                }, 
+                {
+                    value: "interval",
+                    label: "循环任务"
+                }, 
+                {
+                    value: "random",
+                    label: "随机任务"
                 }
             ]
         },
@@ -89,12 +142,15 @@
                 }).then((response) => {
                     this.title = "修改任务";
                     this.formData = response.data;
+                    this.changeTrigger();
                 });
             },
 
             initFormData: function () {
                 var job_id = $.cookie("job_id");
-               
+                
+                console.log("job_id: " + job_id);
+
                 // 如果有job_id 就是修改，那么先去服务端取最新数据
                 if (job_id !== undefined) {
                     this.jobDetail(job_id);
@@ -106,10 +162,35 @@
                         server_host: $.cookie("server_host"),
                         project_name: $.cookie("project_name"),
                         spider_name: $.cookie("spider_name"),
-                        crontab: "* * * * *",
+                        trigger: "cron",
+                        cron: "* * * * *",
+                        run_datetime: this.getDatetime(),
+                        interval: 3,
+                        random: "10-60"
                     };
                 }
             },
+
+            getDatetime: function () {
+                var d = new Date();
+                var year = d.getFullYear();
+                var month = change(d.getMonth() + 1);
+                var day = change(d.getDate());
+                var hour = change(d.getHours());
+                var minute = change(d.getMinutes());
+                var second = change(d.getSeconds());
+                
+                function change(t) {
+                    if (t < 10) {
+                        return "0" + t;
+                    } else {
+                        return t;
+                    }
+                }
+                var time = year + '-' + month + '-' + day + ' ' + hour + ':' + minute + ':' + second;
+                return time;
+            },
+
             cancel: function () {
                 window.location.href = "/scheduler-vue";    
             },
@@ -117,17 +198,31 @@
             addJob: function () {
                 axios.post("/scheduler/addJob", this.formData
                 ).then((response) => {
+                    $.cookie("job_id", response.data.job_id)
                     this.jobDetail(response.data.job_id);
                     this.$message({
                         type: response.data.message_type,
                         message: response.data.message
                     });
                 });
+            },
+
+            changeTrigger: function () {
+                console.log(this.formData.trigger);
+                // 隐藏所有分类
+                for(var index in this.triggers) {
+                    var trigger = this.triggers[index];
+                    $(`.${trigger.value}`).addClass("hide");
+                }
+                // 显示选中分类
+                $(`.${this.formData.trigger}`).removeClass("hide");
+
             }
         },
         created() {
             this.initFormData();
         }
-    })
+    });
+    window.app = app;
 </script>
 </html>
