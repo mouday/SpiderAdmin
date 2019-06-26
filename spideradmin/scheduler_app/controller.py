@@ -102,9 +102,9 @@ def set_schedule(data):
             minute=minute, hour=hour, day=day, month=month, day_of_week=day_of_week,
             replace_existing=True
         )
-        return True
+        return job_id
     else:
-        return False
+        return None
 
 
 #########################
@@ -145,8 +145,9 @@ def add_job():
     data = request.json
     data["is_modify"] = True
     job_id = data.get("job_id")
+    new_job_id = set_schedule(data)
 
-    if set_schedule(data):
+    if new_job_id:
         message_type = "success"
         if job_id:
             message = "任务修改成功！"
@@ -162,7 +163,8 @@ def add_job():
 
     return jsonify({
         "message_type": message_type,
-        "message": message
+        "message": message,
+        "job_id": new_job_id
     })
 
 

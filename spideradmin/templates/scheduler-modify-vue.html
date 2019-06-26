@@ -117,7 +117,7 @@
             addJob: function () {
                 axios.post("/scheduler/addJob", this.formData
                 ).then((response) => {
-                    this.jobDetail(this.formData.job_id);
+                    this.jobDetail(response.data.job_id);
                     this.$message({
                         type: response.data.message_type,
                         message: response.data.message
