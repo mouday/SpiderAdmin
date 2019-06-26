@@ -2,10 +2,16 @@
 
 ## 启动运行
 ```
-$ python3 run.py
+$ pip install spideradmin
+
+$ spideradmin init  # 初始化，可选配置，也可以使用默认配置
+
+$ spideradmin       # 启动服务
 
 ```
+访问：
 http://127.0.0.1:5000/
+
 
 ## 页面截图
 ![](image/main.png)

@@ -10,7 +10,7 @@ from setuptools import setup, find_packages
 python setup.py install 
 
 卸载
-pip uninstall SpiderAdmin -y
+pip uninstall spideradmin -y
 
 
 打包
@@ -22,33 +22,26 @@ twine upload dist/*
 打包的用的setup必须引入，
 """
 
-VERSION = '0.0.1'
+VERSION = '0.0.2'
 
 setup(
-      name='SpiderAdmin',
-      version=VERSION,
-      description="a spider view and scheduler tool base scrapyd and apscheduler",
-      long_description='a spider view and scheduler tool base scrapyd and apscheduler',
-      keywords='SpiderAdmin',
-      author='Peng Shiyu',
-      author_email='pengshiyuyx@gmail.com',
-      license='MIT',
-      packages=find_packages(),
-      include_package_data=True,
-      zip_safe=False,
-      install_requires=[
-            "Flask>=1.0.3",
-            "APScheduler>=3.6.0",
-            "tinydb>=3.13.0"
-      ],
-      entry_points={
-          'console_scripts': [
-              'SpiderAdmin = SpiderAdmin.run:main'
-          ]
-      },
-      classifiers=(
-              "Programming Language :: Python :: 3",
-              "License :: OSI Approved :: MIT License",
-              "Operating System :: OS Independent",
-          )
+    name='spideradmin',
+    version=VERSION,
+    description="spider admin",
+    long_description='spider admin',
+    classifiers=[],  # Get strings from http://pypi.python.org/pypi?%3Aaction=list_classifiers
+    keywords='spideradmin',
+    author='Peng Shiyu',
+    author_email='pengshiyuyx@gmail.com',
+    license='MIT',
+    url="https://github.com/mouday/SpiderAdmin",
+    packages=find_packages(),
+    include_package_data=True,
+    zip_safe=True,
+    install_requires=[],
+    entry_points={
+        'console_scripts': [
+            'spideradmin = spideradmin.run:main'
+        ]
+    }
 )

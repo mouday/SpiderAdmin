@@ -2,20 +2,24 @@
 
 # @Date    : 2019-06-25
 # @Author  : Peng Shiyu
+import sys
 
+import os
 from flask import Blueprint, jsonify, request
 
-from api_app import scrapyd_utils
+from spideradmin.api_app import scrapyd_utils
 
-from api_app.scrapyd_api import ScrapydAPI
-from api_app.scrapyd_utils import get_server_status, cancel_all_spider
+from spideradmin.api_app.scrapyd_api import ScrapydAPI
+from spideradmin.api_app.scrapyd_utils import get_server_status, cancel_all_spider
 
 from tinydb import TinyDB, Query
 
+sys.path.insert(0, os.getcwd())
 try:
     from config import SCRAPYD_SERVERS
-except:
-    from defualt_config import SCRAPYD_SERVERS
+except Exception as e:
+    print(e)
+    from spideradmin.default_config import SCRAPYD_SERVERS
 
 api_app = Blueprint(name="api", import_name=__name__)
 db = TinyDB("server.db")
@@ -47,10 +51,11 @@ def servers():
 def add_server():
     server_host = request.json.get("server_host")
     server_name = request.json.get("server_name")
+
     user_server_table.insert(
         {
-            "server_name": server_name,
-            "server_host": server_host
+            "server_name": server_name.strip(),
+            "server_host": server_host.strip()
         }
     )
     return jsonify({

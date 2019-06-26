@@ -11,8 +11,8 @@ from apscheduler.schedulers import SchedulerAlreadyRunningError, SchedulerNotRun
 from apscheduler.schedulers.background import BackgroundScheduler
 from flask import Blueprint, jsonify, request
 
-from api_app.scrapyd_api import ScrapydAPI
-from scheduler_app.utils import parse_crontab, DATE_TIME_FORMAT, get_job_info
+from spideradmin.api_app.scrapyd_api import ScrapydAPI
+from spideradmin.scheduler_app.utils import parse_crontab, DATE_TIME_FORMAT, get_job_info
 
 scheduler_app = Blueprint(name="scheduler", import_name=__name__)
 

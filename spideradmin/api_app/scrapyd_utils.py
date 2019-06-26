@@ -11,7 +11,7 @@ from dateutil import parser
 import requests
 
 
-from api_app.scrapyd_api import ScrapydAPI
+from spideradmin.api_app.scrapyd_api import ScrapydAPI
 
 
 def format_time(date_time):
