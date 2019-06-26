@@ -49,18 +49,32 @@ def servers():
 
 @api_app.route("/addServer", methods=["POST"])
 def add_server():
-    server_host = request.json.get("server_host")
-    server_name = request.json.get("server_name")
+    server_host = request.json.get("server_host", "")
+    server_name = request.json.get("server_name", "")
 
-    user_server_table.insert(
-        {
-            "server_name": server_name.strip(),
-            "server_host": server_host.strip()
-        }
-    )
-    return jsonify({
-        "message": "添加成功"
-    })
+    server_name = server_name.strip()
+    server_host = server_host.strip()
+
+    if not all([server_name, server_host]):
+        message = "添加失败"
+        message_type = "warning"
+
+    else:
+        user_server_table.insert(
+            {
+                "server_name": server_name,
+                "server_host": server_host
+            }
+        )
+        message = "添加成功"
+        message_type = "success"
+
+    data = {
+        "message": message,
+        "message_type": message_type
+    }
+
+    return jsonify(data)
 
 
 @api_app.route("/removeServer", methods=["POST"])

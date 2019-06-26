@@ -1,5 +1,6 @@
 <!DOCTYPE html>
 <html>
+
 <head>
     <meta charset="UTF-8">
     <!-- 引入样式 -->
@@ -10,68 +11,70 @@
     <script src="/static/element-ui/element-ui@2.9.1.js"></script>
     <script src="/static/element-ui/axios@0.18.0.min.js"></script>
     <style>
-        .el-main a{
-        text-decoration:none;
-        color:#333;
-    }
+        .el-main a {
+            text-decoration: none;
+            color: #333;
+        }
     </style>
 </head>
+
 <body>
-<el-container>
-    <div id="app">
-        <el-breadcrumb separator="/">
-            <template v-for="item in navs">
-                <el-breadcrumb-item><a :href="item.url"><i class="el-icon-refresh"></i>{{item.name}}</a></el-breadcrumb-item>
-            </template>
-        </el-breadcrumb>
+    <el-container>
+        <div id="app">
+            <el-breadcrumb separator="/">
+                <template v-for="item in navs">
+                    <el-breadcrumb-item><a :href="item.url"><i class="el-icon-refresh"></i>{{item.name}}</a>
+                    </el-breadcrumb-item>
+                </template>
+            </el-breadcrumb>
 
 
-        <el-header>
-            <h2>服务器列表</h2>
-        </el-header>
+            <el-header>
+                <h2>服务器列表</h2>
+            </el-header>
 
-        <el-main>
-            <!-- 添加任务表单开始 -->
-            <template>
-                <el-form :inline="true" :model="formData" class="demo-form-inline" size="small">
-                <el-form-item label="服务器名称">
-                    <el-input v-model="formData.server_name" placeholder="名称"></el-input>
-                </el-form-item>
-                <el-form-item label="服务器地址">
-                    <el-input v-model="formData.server_host" placeholder="地址"></el-input>
-                </el-form-item>
-                <el-form-item>
-                    <el-button type="primary" @click="addServer">添加</el-button>
-                </el-form-item>
-                </el-form>
-        </template>
-            <!-- 添加任务表单结束 -->
+            <el-main>
+                <!-- 添加任务表单开始 -->
+                <template>
+                    <el-form :inline="true" :model="formData" class="demo-form-inline" size="small">
+                        <el-form-item label="服务器名称">
+                            <el-input v-model="formData.server_name" placeholder="名称"></el-input>
+                        </el-form-item>
+                        <el-form-item label="服务器地址">
+                            <el-input v-model="formData.server_host" placeholder="地址"></el-input>
+                        </el-form-item>
+                        <el-form-item>
+                            <el-button type="primary" @click="addServer">添加</el-button>
+                        </el-form-item>
+                    </el-form>
+                </template>
+                <!-- 添加任务表单结束 -->
 
-            <!-- 显示任务表格开始 -->
-        <template>
-            <el-table :data="tableData" stripe border style="width: 100%">
+                <!-- 显示任务表格开始 -->
+                <template>
+                    <el-table :data="tableData" stripe border style="width: 100%">
 
-                <el-table-column  type="index" label="序号" width="80"></el-table-column>
-                <el-table-column prop="server_name" label="服务器名称" width="120"></el-table-column>
-                <el-table-column label="服务器地址">
-                    <template slot-scope="scope">
-                        <a :href="scope.row.server_host">{{scope.row.server_host}}</a>
-                    </template>
-                </el-table-column>
-            
-                <el-table-column label="移除" width="120">
-                    <template slot-scope="scope">
-                        <el-button size="mini" @click="removeServer(scope.row)" type="warning">
-                            <i class="el-icon-delete"></i>移除</el-button>
-                    </template>
-                </el-table-column>
+                        <el-table-column type="index" label="序号" width="80"></el-table-column>
+                        <el-table-column prop="server_name" label="服务器名称" width="120"></el-table-column>
+                        <el-table-column label="服务器地址">
+                            <template slot-scope="scope">
+                                <a :href="scope.row.server_host">{{scope.row.server_host}}</a>
+                            </template>
+                        </el-table-column>
 
-            </el-table>
-        </template>
-            <!-- 显示任务表格结束 -->
-        </el-main>
-    </div>
-</el-container>
+                        <el-table-column label="移除" width="120">
+                            <template slot-scope="scope">
+                                <el-button size="mini" @click="removeServer(scope.row)" type="warning">
+                                    <i class="el-icon-delete"></i>移除</el-button>
+                            </template>
+                        </el-table-column>
+
+                    </el-table>
+                </template>
+                <!-- 显示任务表格结束 -->
+            </el-main>
+        </div>
+    </el-container>
 </body>
 
 <script>
@@ -92,7 +95,7 @@
             ]
         },
         methods: {
-            clearFormData: function() {
+            clearFormData: function () {
                 this.formData.server_name = "";
                 this.formData.server_host = "";
             },
@@ -104,17 +107,19 @@
                     this.$message({
                         type: 'info',
                         message: '加载失败'
-                        });
                     });
-            },  
+                });
+            },
             addServer: function () {
                 axios.post("/api/addServer", this.formData
-                ).then(
-                    (response)=> {
-                        this.$message.success(response.data.message);
-                        this.clearFormData();
-                        this.getServers();
-                    }
+                ).then((response) => {
+                    this.$message({
+                        type: response.data.message_type,
+                        message: response.data.message
+                    });
+                    this.clearFormData();
+                    this.getServers();
+                }
                 )
             },
 
@@ -147,7 +152,8 @@
         },
         created() {
             this.getServers();
-    }
+        }
     })
 </script>
+
 </html>
