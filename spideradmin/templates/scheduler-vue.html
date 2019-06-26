@@ -223,11 +223,6 @@
             
             showLog: function (row) {
                 var server_host = row.server_host;
-                
-                String.prototype.endWith = function (endStr) {
-                    var d = this.length - endStr.length;
-                    return (d >= 0 && this.lastIndexOf(endStr) == d)
-                }
 
                 function endsWith(str, char) {
                     var length = str.length;

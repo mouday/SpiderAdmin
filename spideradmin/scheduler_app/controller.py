@@ -80,7 +80,7 @@ def run_spider(**kwargs):
     server_name = kwargs["server_name"]
     project_name = kwargs["project_name"]
     spider_name = kwargs["spider_name"]
-    times = kwargs.get("times", 0)
+    times = kwargs.get("times")
     times += 1
 
     scheduler_logging.info("运行爬虫：[{}][{}] {}-{} => {}".format(
@@ -112,7 +112,7 @@ def set_schedule(data):
     last_run_time = data.get("last_run_time")
     modify_time = data.get("modify_time")
     is_modify = data.get("is_modify")
-    times = data.get("times")
+    times = data.get("times", 0)
 
     trigger = data.get("trigger")
     cron = data.get("cron")
