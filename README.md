@@ -1,8 +1,10 @@
 # SpiderAdmin
 
+![PyPI](https://img.shields.io/pypi/v/spideradmin.svg)
+
 ## 启动运行
 ```
-$ pip install spideradmin
+$ pip3 install spideradmin
 
 $ spideradmin init  # 初始化，可选配置，也可以使用默认配置
 
