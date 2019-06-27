@@ -3,8 +3,8 @@
 # @Date    : 2019-06-26
 # @Author  : Peng Shiyu
 
-
 import io
+import os
 
 from setuptools import setup, find_packages
 
@@ -48,14 +48,18 @@ https://packaging.python.org/guides/making-a-pypi-friendly-readme/
 
 """
 
-VERSION = '0.0.10'
+base_dir = os.path.dirname(os.path.abspath(__file__))
+
+version = {}
+with io.open(os.path.join(base_dir, "spideradmin/version.py"), 'r') as f:
+    exec(f.read(), version)
 
 with io.open("README.md", 'r', encoding='utf-8') as f:
     long_description = f.read()
 
 setup(
     name='spideradmin',
-    version=VERSION,
+    version=version["VERSION"],
     description="a spider admin based scrapyd api and APScheduler",
 
     keywords='spider admin',
