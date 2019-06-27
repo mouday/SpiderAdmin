@@ -30,6 +30,13 @@ twine check dist/*
 上传pypi
 twine upload dist/*
 
+命令整合
+rm -rf dist build spideradmin.egg-info \
+&& python setup.py sdist bdist_wheel  \
+&& twine check dist/* \
+&& twine upload dist/*
+
+
 ## 下载测试
 安装测试
 pip install -U spideradmin -i https://pypi.org/simple
@@ -41,7 +48,7 @@ https://packaging.python.org/guides/making-a-pypi-friendly-readme/
 
 """
 
-VERSION = '0.0.9'
+VERSION = '0.0.10'
 
 with io.open("README.md", 'r', encoding='utf-8') as f:
     long_description = f.read()
