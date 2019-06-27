@@ -4,19 +4,22 @@
 # @Author  : Peng Shiyu
 
 
-import os
-
-import requests
-from setuptools import setup, find_packages
 import io
 
+from setuptools import setup, find_packages
+
 """
+## 本地测试
 安装测试
 python setup.py install 
 
 卸载
 pip uninstall spideradmin -y
 
+
+## 打包上传
+先升级打包工具
+pip install --upgrade setuptools wheel twine
 
 打包
 python setup.py sdist bdist_wheel
@@ -27,45 +30,42 @@ twine check dist/*
 上传pypi
 twine upload dist/*
 
-打包的用的setup必须引入，
+## 下载测试
+安装测试
+pip install -U spideradmin -i https://pypi.org/simple
+
+打包的用的setup必须引入
+
+参考：
+https://packaging.python.org/guides/making-a-pypi-friendly-readme/
+
 """
 
-VERSION = '0.0.5'
+VERSION = '0.0.7'
 
-
-# 将markdown格式转换为rst格式
-def md_to_rst(from_file, to_file):
-    r = requests.post(
-        url='http://c.docverter.com/convert',
-        data={'to': 'rst', 'from': 'markdown'},
-        files={'input_files[]': open(from_file, 'rb')}
-    )
-    if not r.ok:
-        return
-
-    with open(to_file, "wb") as f:
-        f.write(r.content)
-
-
-if os.path.exists("README.md"):
-    md_to_rst("README.md", "README.rst")
-
-long_description = 'a spider admin based scrapyd api and APScheduler'
-# if os.path.exists('README.md'):
-#     long_description = io.open('README.md', encoding="utf-8").read()
+with io.open("README.md", 'r', encoding='utf-8') as f:
+    long_description = f.read()
 
 setup(
     name='spideradmin',
     version=VERSION,
     description="a spider admin based scrapyd api and APScheduler",
-    long_description=long_description,
-    long_description_content_type="text/markdown",
-    classifiers=[],  # Get strings from http://pypi.python.org/pypi?%3Aaction=list_classifiers
+
     keywords='spider admin',
     author='Peng Shiyu',
     author_email='pengshiyuyx@gmail.com',
     license='MIT',
     url="https://github.com/mouday/SpiderAdmin",
+
+    long_description=long_description,
+    long_description_content_type='text/markdown',
+
+    # Get strings from http://pypi.python.org/pypi?%3Aaction=list_classifiers
+    classifiers=[
+        "Programming Language :: Python :: 3",
+        "Programming Language :: Python :: 3.6"
+    ],
+
     packages=find_packages(),
     include_package_data=True,
     zip_safe=True,

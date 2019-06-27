@@ -22,6 +22,7 @@ $ scrapyd-deploy -a
 4. 基于Flask-BasicAuth 做了简单的权限校验
 
 ## 启动运行
+
 ```
 $ pip3 install spideradmin
 
@@ -35,13 +36,13 @@ http://127.0.0.1:5000/
 
 
 ## 页面截图
-![](image/main.png)
+![](https://github.com/mouday/SpiderAdmin/raw/master/image/main.png)
 
-![](image/status.png)
+![](https://github.com/mouday/SpiderAdmin/raw/master/image/status.png)
 
-![](image/task.png)
+![](https://github.com/mouday/SpiderAdmin/raw/master/image/task.png)
 
-![](image/time.png)
+![](https://github.com/mouday/SpiderAdmin/raw/master/image/time.png)
 
 ## TODO
 1. ~~增加登录页面做权限校验~~
