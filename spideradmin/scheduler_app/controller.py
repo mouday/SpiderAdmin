@@ -371,9 +371,13 @@ def job_detail():
 @scheduler_app.route("/start")
 def start():
     global is_start
+    global is_pause
     global scheduler
 
+    # 重启之后要初始化状态
+    is_pause = False
     is_start = True
+
     scheduler = BackgroundScheduler(jobstores=jobstores, job_defaults=job_defaults)
 
     try:

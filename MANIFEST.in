@@ -8,3 +8,6 @@ graft spideradmin/scheduler_app
 graft image
 global-include *.py
 global-exclude *.pyc
+global-exclude *.log
+global-exclude *.db
+global-exclude *.sqlite
