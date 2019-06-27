@@ -127,13 +127,7 @@
                 pause_function:""
             },
             tableData: [],
-            formData: {
-                server_name: $.cookie("server_name"),
-                server_host: $.cookie("server_host"),
-                project_name: $.cookie("project_name"),
-                spider_name: $.cookie("spider_name"),
-                crontab: "* * * * *",
-            },
+            
             navs: [
                 {
                     name: "刷新列表",
@@ -162,17 +156,10 @@
                         job_id: job_id
                     }
                 }).then((response) => {
-                    this.$message.success(response.data.message);
-                });
-            },
-
-            addJob: function () {
-                axios.post("/scheduler/addJob", this.formData
-                ).then((response) => {
-                    this.getJobs();
-                    this.$message.success("任务添加成功");
-                }).catch(() => {
-                    this.$message.info("加载失败");
+                    this.$message({
+                        type: response.data.message_type,
+                        message: response.data.message
+                    });
                 });
             },
 
@@ -284,7 +271,10 @@
                     axios.get("/scheduler/removeAllJobs"
                     ).then((response) => {
                         this.getJobs();
-                        this.$message.success(response.data.message);
+                        this.$message({
+                            type: response.data.message_type,
+                            message: response.data.message
+                        });
                     });
                 }).catch(() => {
                     this.$message({

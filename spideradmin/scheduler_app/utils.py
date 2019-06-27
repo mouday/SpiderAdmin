@@ -47,6 +47,9 @@ def get_crontab(job):
 
 
 def get_job_info(job):
+    if job is None:
+        return {}
+
     if hasattr(job, "next_run_time"):
         next_run_time = job.next_run_time
     else:
@@ -87,6 +90,7 @@ def get_job_info(job):
         "run_datetime": kwargs.get("run_datetime"),
         "times": kwargs.get("times")
     }
+
     return row
 
 

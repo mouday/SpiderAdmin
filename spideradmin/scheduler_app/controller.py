@@ -54,8 +54,7 @@ job_defaults = {
     'max_instances': 1
 }
 
-scheduler = BackgroundScheduler(jobstores=jobstores, job_defaults=job_defaults)
-scheduler.start()
+scheduler = None
 
 # ==============================================
 # 调度器接口服务
@@ -64,7 +63,7 @@ scheduler.start()
 scheduler_app = Blueprint(name="scheduler", import_name=__name__)
 
 # 启动
-is_start = True
+is_start = False
 
 # 暂停
 is_pause = False
@@ -104,6 +103,8 @@ def set_schedule(data):
     :param data:
     :return:
     """
+    global scheduler
+
     server_host = data.get("server_host")
     server_name = data.get("server_name")
     project_name = data.get("project_name")
@@ -214,16 +215,21 @@ def set_schedule(data):
 def get_jobs():
     global is_start
     global is_pause
+    global scheduler
 
-    jobs = scheduler.get_jobs()
-    rows = []
+    if scheduler:
+        jobs = scheduler.get_jobs()
+        rows = []
 
-    for job in jobs:
-        try:
-            row = get_job_info(job)
-            rows.append(row)
-        except AttributeError:
-            continue
+        for job in jobs:
+            try:
+                row = get_job_info(job)
+                if row:
+                    rows.append(row)
+            except AttributeError:
+                continue
+    else:
+        rows = []
 
     data = {
         "jobs": rows,
@@ -245,34 +251,45 @@ def get_jobs():
 
 @scheduler_app.route("/addJob", methods=["POST"])
 def add_job():
-    data = request.json
-    data["is_modify"] = True
-    job_id = data.get("job_id")
-    new_job_id = set_schedule(data)
+    global scheduler
 
-    if new_job_id:
-        message_type = "success"
-        if job_id:
-            message = "任务修改成功！"
-        else:
-            message = "任务添加成功！"
+    if not scheduler:
+        message_type = "error"
+        message = "调度器没启动"
+        new_job_id = ""
 
     else:
-        message_type = "error"
-        if job_id:
-            message = "任务修改失败！"
-        else:
-            message = "任务添加失败！"
+        data = request.json
+        data["is_modify"] = True
+        job_id = data.get("job_id")
+        new_job_id = set_schedule(data)
 
-    return jsonify({
+        if new_job_id:
+            message_type = "success"
+            if job_id:
+                message = "任务修改成功！"
+            else:
+                message = "任务添加成功！"
+
+        else:
+            message_type = "error"
+            if job_id:
+                message = "任务修改失败！"
+            else:
+                message = "任务添加失败！"
+    result = {
         "message_type": message_type,
         "message": message,
         "job_id": new_job_id
-    })
+    }
+
+    return jsonify(result)
 
 
 @scheduler_app.route("/removeJob")
 def remove_job():
+    global scheduler
+
     job_id = request.args.get("job_id")
 
     scheduler.remove_job(job_id)
@@ -285,6 +302,8 @@ def remove_job():
 
 @scheduler_app.route("/pauseJob")
 def pause_job():
+    global scheduler
+
     job_id = request.args.get("job_id")
     scheduler.pause_job(job_id)
     return jsonify(
@@ -297,6 +316,8 @@ def pause_job():
 
 @scheduler_app.route("/resumeJob")
 def resume_job():
+    global scheduler
+
     job_id = request.args.get("job_id")
     scheduler.resume_job(job_id)
     return jsonify(
@@ -309,24 +330,38 @@ def resume_job():
 
 @scheduler_app.route("/runJob")
 def run_job():
+    global scheduler
+
     job_id = request.args.get("job_id")
     job = scheduler.get_job(job_id)
     job_info = get_job_info(job)
 
-    scheduler.add_job(run_spider, kwargs=job_info)
+    if job_info:
+        scheduler.add_job(run_spider, kwargs=job_info)
+        message = "运行成功"
+        message_type = "success"
+    else:
+        message = "运行失败"
+        message_type = "warning"
 
-    return jsonify(
-        {
-            "message": "运行成功"
-        }
-    )
+    data = {
+        "message": message,
+        "message_type": message_type
+
+    }
+
+    return jsonify(data)
 
 
 @scheduler_app.route("/jobDetail")
 def job_detail():
-    job_id = request.args.get("job_id")
-    job = scheduler.get_job(job_id)
-    row = get_job_info(job)
+    global scheduler
+    if scheduler:
+        job_id = request.args.get("job_id")
+        job = scheduler.get_job(job_id)
+        row = get_job_info(job)
+    else:
+        row = {}
     return jsonify(row)
 
 
@@ -336,7 +371,10 @@ def job_detail():
 @scheduler_app.route("/start")
 def start():
     global is_start
+    global scheduler
+
     is_start = True
+    scheduler = BackgroundScheduler(jobstores=jobstores, job_defaults=job_defaults)
 
     try:
         scheduler.start()
@@ -356,10 +394,13 @@ def start():
 @scheduler_app.route("/shutdown")
 def shutdown():
     global is_start
+    global scheduler
+
     is_start = False
 
     try:
         scheduler.shutdown()
+        scheduler = None
         message = "关闭调度"
         message_type = "warning"
     except SchedulerNotRunningError:
@@ -375,13 +416,14 @@ def shutdown():
 @scheduler_app.route("/pause")
 def pause():
     global is_pause
+    global scheduler
 
     try:
         scheduler.pause()
         message = "全部任务暂停"
         message_type = "warning"
         is_pause = True
-    except SchedulerNotRunningError:
+    except (SchedulerNotRunningError, AttributeError):
         message = "调度器没有启动"
         message_type = "error"
 
@@ -394,13 +436,14 @@ def pause():
 @scheduler_app.route("/resume")
 def resume():
     global is_pause
+    global scheduler
 
     try:
         scheduler.resume()
         message = "全部任务继续"
         message_type = "success"
         is_pause = False
-    except SchedulerNotRunningError:
+    except (SchedulerNotRunningError, AttributeError):
         message = "调度器没有启动"
         message_type = "warning"
 
@@ -412,9 +455,19 @@ def resume():
 
 @scheduler_app.route("/removeAllJobs")
 def remove_all_jobs():
-    scheduler.remove_all_jobs()
+    global scheduler
+
+    if scheduler:
+        scheduler.remove_all_jobs()
+        message = "全部任务移除"
+        message_type = "success"
+    else:
+        message = "任务移除失败, 调度器没有启动"
+        message_type = "warning"
+
     return jsonify(
         {
-            "message": "全部任务移除"
+            "message": message,
+            "message_type": message_type
         }
     )
