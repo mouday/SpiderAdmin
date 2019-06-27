@@ -374,25 +374,27 @@ def start():
     global is_pause
     global scheduler
 
-    # 重启之后要初始化状态
-    is_pause = False
-    is_start = True
-
-    scheduler = BackgroundScheduler(jobstores=jobstores, job_defaults=job_defaults)
-
-    try:
-        scheduler.start()
-        message = "启动调度"
-        message_type = "success"
-    except SchedulerAlreadyRunningError:
+    if scheduler:
         message = "调度已经在运行了"
         message_type = "warning"
-    return jsonify(
-        {
-            "message": message,
-            "message_type": message_type
-        }
-    )
+
+    else:
+        # 重启之后要初始化状态
+        is_pause = False
+        is_start = True
+
+        scheduler = BackgroundScheduler(jobstores=jobstores, job_defaults=job_defaults)
+        scheduler.start()
+
+        message = "启动调度"
+        message_type = "success"
+
+    data = {
+        "message": message,
+        "message_type": message_type
+    }
+
+    return jsonify(data)
 
 
 @scheduler_app.route("/shutdown")
