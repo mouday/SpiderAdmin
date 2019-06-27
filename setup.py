@@ -41,7 +41,7 @@ https://packaging.python.org/guides/making-a-pypi-friendly-readme/
 
 """
 
-VERSION = '0.0.7'
+VERSION = '0.0.8'
 
 with io.open("README.md", 'r', encoding='utf-8') as f:
     long_description = f.read()
