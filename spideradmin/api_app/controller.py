@@ -11,6 +11,7 @@ from spideradmin.api_app import scrapyd_utils
 
 from spideradmin.api_app.scrapyd_api import ScrapydAPI
 from spideradmin.api_app.scrapyd_utils import get_server_status, cancel_all_spider
+from spideradmin.version import VERSION
 
 from tinydb import TinyDB, Query
 
@@ -267,3 +268,10 @@ def delete_version():
             "message": result
         }
     )
+
+
+@api_app.route("/currentVersion")
+def current_version():
+    return jsonify({
+        "version": VERSION
+    })

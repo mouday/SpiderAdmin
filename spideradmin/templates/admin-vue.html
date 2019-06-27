@@ -74,11 +74,16 @@
 
   <el-header>
     <!-- <el-image style="width: 40px; height: 40px;" fit="fit" src="/static/favicon.jpeg"></el-image> -->
-    Spider Admin
+    Spider Admin <span style="font-size: 12px">{{ currentVersion }}</span>
     <span style="float:right;">
+
       <a href="https://github.com/mouday/SpiderAdmin" target="_blank">
         <img alt="GitHub stars" src="https://img.shields.io/github/stars/mouday/SpiderAdmin.svg?style=social">
       </a>
+
+        <a href="https://pypi.org/project/spideradmin/" target="_blank">
+            <img alt="Version" src="https://img.shields.io/pypi/v/spideradmin.svg">
+        </a>
     </span>
     <!-- <el-button size="small" plain @click="refreshPage"><i class="el-icon-refresh"></i>刷新</el-button> -->
   </el-header>
@@ -88,9 +93,9 @@
   <el-col>
 
     <el-menu
-      default-active="1" 
+      default-active="1"
       class="el-menu-vertical-demo"
-      :default-openeds="defaultOpeneds"
+      :default-openeds="['1', '2', '3']"
       @open="handleOpen"
       @close="handleClose"
       >
@@ -116,13 +121,13 @@
           <i class="el-icon-s-data"></i>
           <span>爬虫项目</span>
         </template>
-        
+
         <el-menu-item v-for="(item, index) in tableData" v-bind:key="index">
           <a @click="openProject(item.server_name, item.server_host)">
             {{item.server_name}}
           </a>
         </el-menu-item>
-        
+
       </el-submenu>
     </el-menu>
   </el-col>
@@ -141,8 +146,8 @@
     var app = new Vue({
         el: '#app',
         data: {
-          defaultOpeneds: ["1", "2", "3"],
-          tableData: []
+            currentVersion: "",
+            tableData: []
         },
         methods: {
             // 在iframe打开url
@@ -156,23 +161,32 @@
                 var url = "/project-vue";
                 this.openUrl(url);
             },
+
             handleOpen: function(key, keyPath) {
               console.log(key, keyPath);
             },
             handleClose: function(key, keyPath) {
               console.log(key, keyPath);
             },
+
             getServers: function () {
               axios.get("/api/servers"
               ).then((response) => {
                 this.tableData = response.data
               });
-          },  
+            },
+            getVersion: function () {
+                axios.get("/api/currentVersion"
+                ).then((response) => {
+                    this.currentVersion = "V" + response.data.version;
+                });
+            }
         },
         created() {
             this.getServers();
+            this.getVersion();
         }
-      
+
     });
     window.app = app;
 </script>
