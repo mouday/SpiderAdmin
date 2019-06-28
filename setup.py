@@ -31,7 +31,7 @@ twine check dist/*
 twine upload dist/*
 
 命令整合
-rm -rf dist build spideradmin.egg-info \
+rm -rf dist build *.egg-info \
 && python setup.py sdist bdist_wheel  \
 && twine check dist/* \
 && twine upload dist/*
