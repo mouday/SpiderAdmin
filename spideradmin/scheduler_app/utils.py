@@ -88,7 +88,10 @@ def get_job_info(job):
         "interval": kwargs.get("interval"),
         "random": kwargs.get("random"),
         "run_datetime": kwargs.get("run_datetime"),
-        "times": kwargs.get("times")
+        "times": kwargs.get("times"),
+        "spider_job_id": kwargs.get("spider_job_id"),
+        "spider_status": "success" if kwargs.get("spider_job_id") else "error",
+
     }
 
     return row

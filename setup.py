@@ -58,7 +58,7 @@ with io.open("README.md", 'r', encoding='utf-8') as f:
     long_description = f.read()
 
 setup(
-    name='spideradmin',
+    name='SpiderAdmin',
     version=version["VERSION"],
     description="a spider admin based scrapyd api and APScheduler",
 
@@ -89,7 +89,8 @@ setup(
     ],
     entry_points={
         'console_scripts': [
-            'spideradmin = spideradmin.run:main'
+            'spideradmin = spideradmin.run:main',
+            'SpiderAdmin = spideradmin.run:main'
         ]
     }
 )

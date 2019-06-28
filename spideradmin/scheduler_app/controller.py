@@ -92,6 +92,7 @@ def run_spider(**kwargs):
         server_host, server_name, project_name, spider_name, result))
 
     kwargs["times"] = times
+    kwargs["spider_job_id"] = result
     kwargs["last_run_time"] = datetime.now().strftime(DATE_TIME_FORMAT)
 
     set_schedule(kwargs)
@@ -120,6 +121,7 @@ def set_schedule(data):
     interval = data.get("interval")
     random_time = data.get("random")
     run_datetime = data.get("run_datetime")
+    spider_job_id = data.get("spider_job_id")
 
     if all([server_host, server_name, project_name, spider_name]
            ) and any([cron, interval, random_time, run_datetime]):
@@ -146,7 +148,8 @@ def set_schedule(data):
             "interval": interval,
             "random": random_time,
             "run_datetime": run_datetime,
-            "times": times
+            "times": times,
+            "spider_job_id": spider_job_id
         }
 
         # 以crontab 方式执行

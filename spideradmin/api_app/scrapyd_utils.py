@@ -98,9 +98,13 @@ def get_log(url):
     :param url: str
     :return:
     """
-    response = requests.get(url)
-    response.encoding = response.apparent_encoding
-    return "<pre>{}</pre>".format(response.text)
+    try:
+        response = requests.get(url)
+        response.encoding = response.apparent_encoding
+        text = response.text
+    except Exception as e:
+        text = "<h2>{}</h2>".format(e)
+    return "<pre>{}</pre>".format(text)
 
 
 def format_version(version):

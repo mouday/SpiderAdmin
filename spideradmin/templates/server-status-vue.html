@@ -45,7 +45,18 @@
                         <a :href="scope.row.server_host">{{scope.row.server_host}}</a>
                     </template>
                 </el-table-column>
-                <el-table-column prop="server_status.status" label="服务器状态" width="100"></el-table-column>
+                <el-table-column  label="服务器状态" width="100">
+                    <template slot-scope="scope">
+                            <div v-if="scope.row.server_status.status === 'ok'">
+                            <i class="el-icon-success" style="color:#67C23A"></i>
+                            </div>
+
+                            <div v-if="scope.row.server_status.status === 'error'">
+                            <i class="el-icon-warning" style="color:#F56C6C"></i>
+                            </div>
+                        </template>
+                </el-table-column>
+
                 <el-table-column prop="server_status.pending" label="pending" width="80"></el-table-column>
                 <el-table-column prop="server_status.running" label="running" width="80"></el-table-column>
                 <el-table-column prop="server_status.finished" label="finished" width="80"></el-table-column>

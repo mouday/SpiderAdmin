@@ -66,14 +66,32 @@
                     </el-table-column>
 
                     <el-table-column prop="times" label="已运行次数" width="100"></el-table-column>
+                    <el-table-column label="调度状态" width="80">
+                        <template slot-scope="scope">
+                            <div v-if="scope.row.spider_status === 'success'">
+                            <i class="el-icon-success" style="color:#67C23A"></i>
+                            </div>
+
+                            <div v-if="scope.row.spider_status === 'error'">
+                            <i class="el-icon-warning" style="color:#F56C6C"></i>
+                            </div>
+                        </template>
+                    </el-table-column>
                     <el-table-column prop="last_run_time" label="上次运行时间" width="170"></el-table-column>
                     <el-table-column prop="next_run_time" label="下次运行时间" width="170"></el-table-column>
                     <el-table-column prop="modify_time" label="修改时间" width="170"></el-table-column>
                     <!-- <el-table-column prop="pending" label="pending"></el-table-column> -->
                     
-                    <el-table-column label="查看日志" width="90">
+                    <el-table-column label="日志文件" width="90">
                         <template slot-scope="scope">
                             <el-button size="mini" @click="showLog(scope.row)" type="info">
+                                <i class="el-icon-document"></i>查看</el-button>
+                        </template>
+                    </el-table-column>
+
+                    <el-table-column label="日志目录" width="90">
+                        <template slot-scope="scope">
+                            <el-button size="mini" @click="showLogDir(scope.row)" type="info">
                                 <i class="el-icon-document"></i>查看</el-button>
                         </template>
                     </el-table-column>
@@ -207,29 +225,55 @@
                     });
                 });
             },
-            
-            showLog: function (row) {
-                var server_host = row.server_host;
 
-                function endsWith(str, char) {
+            endsWith: function (str, char) {
                     var length = str.length;
-                    
+
                     if (length > 0 && length - 1 === str.lastIndexOf(char) ) {
                         return true;
                     } else {
                         return false;
                     }
 
-                }
-                // 兼容配置文件以 / 结尾的域名
-                if (!endsWith(server_host, "/")) {
-                    server_host = server_host + "/";
-                }
+                },
 
-                var url = `${server_host}logs/${row.project_name}/${row.spider_name}/`;
+            showLogDir: function (row) {
+                var url = this.getLogDirUrl(row);
                 window.open(url, "_blank");
             },
-            
+
+            showLog: function (row) {
+                var url = this.getLogUrl(row);
+                window.open(url, "_blank");
+            },
+
+            getServerUrl: function (server_host) {
+
+                // 兼容配置文件以 / 结尾的域名
+                if (!this.endsWith(server_host, "/")) {
+                    server_host = server_host + "/";
+                }
+                return server_host;
+            },
+
+            getLogDirUrl: function (row) {
+                var server_host = this.getServerUrl(row.server_host);
+                var url = `${server_host}logs/${row.project_name}/${row.spider_name}/`;
+                return url;
+            },
+
+            getLogUrl: function (row) {
+                var server_host = this.getServerUrl(row.server_host);
+
+                var url = `/api/log?server_name=${row.server_name}&`
+                + `server_host=${server_host}&`
+                + `project_name=${row.project_name}&`
+                + `spider_name=${row.spider_name}&`
+                + `job_id=${row.spider_job_id}`;
+
+                return url;
+            },
+
             showTrigger: function (row) {
                 return row[row.trigger];
             },
