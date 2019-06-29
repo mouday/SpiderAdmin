@@ -57,6 +57,9 @@ with io.open(os.path.join(base_dir, "spideradmin/version.py"), 'r') as f:
 with io.open("README.md", 'r', encoding='utf-8') as f:
     long_description = f.read()
 
+with io.open("requirements.txt", 'r') as f:
+    install_requires = f.read().split(os.sep)
+
 setup(
     name='SpiderAdmin',
     version=version["VERSION"],
@@ -80,13 +83,7 @@ setup(
     packages=find_packages(),
     include_package_data=True,
     zip_safe=True,
-    install_requires=[
-        "requests>=2.22.0",
-        "Flask>=1.0.3",
-        "APScheduler>=3.6.0",
-        "tinydb>=3.13.0",
-        "Flask-BasicAuth>=0.2.0"
-    ],
+    install_requires=install_requires,
     entry_points={
         'console_scripts': [
             'spideradmin = spideradmin.run:main',
