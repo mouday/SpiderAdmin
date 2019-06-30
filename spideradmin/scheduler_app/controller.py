@@ -176,7 +176,7 @@ def set_schedule(data):
 
             scheduler.add_job(
                 run_spider, kwargs=kwargs, id=job_id, replace_existing=True,
-                trigger="interval", seconds=interval
+                trigger="interval", minutes=interval
             )
 
         # 执行一次
@@ -200,7 +200,7 @@ def set_schedule(data):
                 return None
 
             random_delay = random.randint(random_start, random_end)
-            execute_time = datetime.now() + timedelta(seconds=random_delay)
+            execute_time = datetime.now() + timedelta(minutes=random_delay)
             scheduler.add_job(
                 run_spider, kwargs=kwargs, id=job_id, replace_existing=True,
                 trigger="date", run_date=execute_time
