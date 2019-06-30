@@ -56,6 +56,24 @@ job_defaults = {
 
 scheduler = None
 
+
+def start_scheduler():
+    global scheduler
+    global is_pause
+    global is_start
+
+    # 重启之后要初始化状态
+    is_pause = False
+    is_start = True
+
+    scheduler = BackgroundScheduler(jobstores=jobstores, job_defaults=job_defaults)
+    scheduler.start()
+
+
+# 默认启动调度器
+start_scheduler()
+
+
 # ==============================================
 # 调度器接口服务
 # ==============================================
@@ -63,7 +81,7 @@ scheduler = None
 scheduler_app = Blueprint(name="scheduler", import_name=__name__)
 
 # 启动
-is_start = False
+is_start = True
 
 # 暂停
 is_pause = False
@@ -382,12 +400,7 @@ def start():
         message_type = "warning"
 
     else:
-        # 重启之后要初始化状态
-        is_pause = False
-        is_start = True
-
-        scheduler = BackgroundScheduler(jobstores=jobstores, job_defaults=job_defaults)
-        scheduler.start()
+        start_scheduler()
 
         message = "启动调度"
         message_type = "success"
