@@ -18,7 +18,7 @@ class Client(Session):
             kwargs["timeout"] = 10
             response = super(Client, self).request(*args, **kwargs)
             data = response.json()
-        except (ConnectionError, ValueError, TimeoutError) as e:
+        except Exception as e:
             logging.error("### Error: {}".format(e))
             data = {"status": "error"}
 

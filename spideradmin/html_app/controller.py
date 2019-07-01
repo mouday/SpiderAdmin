@@ -19,4 +19,7 @@ def admin_vue():
 
 @html_app.route("/<template>")
 def server_vue(template):
-    return send_file(os.path.join(base_dir, "templates/{}.html".format(template)))
+    if template == "favicon.ico":
+        return send_file(os.path.join(base_dir, "static/favicon.ico"))
+    else:
+        return send_file(os.path.join(base_dir, "templates/{}.html".format(template)))
