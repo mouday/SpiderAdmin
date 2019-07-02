@@ -7,14 +7,15 @@ import logging
 import random
 import uuid
 from datetime import datetime, timedelta
-
+from collections import defaultdict
 from apscheduler.jobstores.sqlalchemy import SQLAlchemyJobStore
-from apscheduler.schedulers import SchedulerAlreadyRunningError, SchedulerNotRunningError
+from apscheduler.schedulers import SchedulerNotRunningError
 from apscheduler.schedulers.background import BackgroundScheduler
 from flask import Blueprint, jsonify, request
 
 from spideradmin.api_app.scrapyd_api import ScrapydAPI
 from spideradmin.scheduler_app.utils import parse_crontab, DATE_TIME_FORMAT, get_job_info
+from spideradmin.scheduler_app import scheduler_history
 
 # ==============================================
 # 调度情况日志配置
@@ -23,8 +24,8 @@ from spideradmin.scheduler_app.utils import parse_crontab, DATE_TIME_FORMAT, get
 scheduler_logging = logging.getLogger(__name__)
 scheduler_logging.setLevel(logging.DEBUG)
 
-fmt = "%(asctime)s - %(levelname)s: %(message)s"
-formatter = logging.Formatter(fmt, datefmt="%Y-%m-%d %H:%M:%S")
+log_fmt = "%(asctime)s - %(levelname)s: %(message)s"
+formatter = logging.Formatter(log_fmt, datefmt="%Y-%m-%d %H:%M:%S")
 
 scheduler_logging_filename = "scheduler_logging.log"
 file_handler = logging.FileHandler(scheduler_logging_filename)
@@ -72,7 +73,7 @@ def start_scheduler():
 
 # 默认启动调度器
 start_scheduler()
-
+history = scheduler_history.SchedulerHistory()
 
 # ==============================================
 # 调度器接口服务
@@ -97,6 +98,7 @@ def run_spider(**kwargs):
     server_name = kwargs["server_name"]
     project_name = kwargs["project_name"]
     spider_name = kwargs["spider_name"]
+    job_id = kwargs["job_id"]
     times = kwargs.get("times")
     times += 1
 
@@ -105,6 +107,17 @@ def run_spider(**kwargs):
 
     scrapyd = ScrapydAPI(server_host)
     result = scrapyd.schedule(project_name, spider_name)
+
+    # 调度历史
+    with scheduler_history.lock:
+        history.insert(
+            job_id=job_id,
+            server_host=server_host,
+            server_name=server_name,
+            project_name=project_name,
+            spider_name=spider_name,
+            spider_job_id=result
+        )
 
     scheduler_logging.info("结束爬虫：[{}] {}-{} => {} {}".format(
         server_host, server_name, project_name, spider_name, result))
@@ -214,15 +227,17 @@ def set_schedule(data):
             try:
                 randoms = random_time.split("-")
                 random_start, random_end = [int(rand.strip()) for rand in randoms]
+
             except Exception:
                 return None
 
             random_delay = random.randint(random_start, random_end)
-            execute_time = datetime.now() + timedelta(minutes=random_delay)
             scheduler.add_job(
                 run_spider, kwargs=kwargs, id=job_id, replace_existing=True,
-                trigger="date", run_date=execute_time
+                trigger="interval", minutes=random_delay
             )
+        else:
+            return None
 
         return job_id
     else:
@@ -493,3 +508,48 @@ def remove_all_jobs():
             "message_type": message_type
         }
     )
+
+
+@scheduler_app.route("/history")
+def get_schedule_history():
+    job_id = request.args.get("job_id")
+    count = request.args.get("count", "30")
+
+    with scheduler_history.lock:
+        result = history.select(job_id, count)
+
+    fmt = "%H:%M"
+    now = datetime.now()
+    min_time = now
+    spider_name = None
+
+    schedule_list = defaultdict(int)
+
+    for row in result:
+        if spider_name is None:
+            spider_name = row["spider_name"]
+
+        schedule_time = row["schedule_time"]
+        if schedule_time < min_time:
+            min_time = schedule_time
+
+        t = schedule_time.strftime(fmt)
+
+        schedule_list[t] += 1
+
+    time_list = []
+    while min_time <= now:
+        time_list.append(min_time.strftime(fmt))
+        min_time += timedelta(minutes=1)
+
+    data_list = []
+    for time_item in time_list:
+        data_list.append(schedule_list.get(time_item, 0))
+
+    data = {
+        "title": spider_name,
+        "values": data_list,
+        "keys": time_list
+    }
+
+    return jsonify(data)

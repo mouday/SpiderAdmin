@@ -57,7 +57,11 @@
                     <el-table-column prop="server_name" label="服务器"></el-table-column>
                     <el-table-column prop="project_name" label="项目" width="150"></el-table-column>
                     <el-table-column prop="spider_name" label="爬虫名称" width="250"></el-table-column>
-                    <el-table-column prop="trigger" label="定时类型"></el-table-column>
+                    <el-table-column label="定时类型">
+                        <template slot-scope="scope">
+                            {{showTriggerName(scope.row.trigger)}}
+                        </template>
+                    </el-table-column>
                     
                     <el-table-column label="定时" width="150">
                         <template slot-scope="scope">
@@ -77,11 +81,19 @@
                             </div>
                         </template>
                     </el-table-column>
+                    
                     <el-table-column prop="last_run_time" label="上次运行时间" width="170"></el-table-column>
                     <el-table-column prop="next_run_time" label="下次运行时间" width="170"></el-table-column>
                     <el-table-column prop="modify_time" label="修改时间" width="170"></el-table-column>
                     <!-- <el-table-column prop="pending" label="pending"></el-table-column> -->
                     
+                    <el-table-column label="调度历史" width="90">
+                        <template slot-scope="scope">
+                            <el-button size="mini" @click="showHistory(scope.row.job_id)" type="info">
+                                <i class="el-icon-picture-outline"></i>查看</el-button>
+                        </template>
+                    </el-table-column>
+
                     <el-table-column label="日志文件" width="90">
                         <template slot-scope="scope">
                             <el-button size="mini" @click="showLog(scope.row)" type="info">
@@ -327,9 +339,23 @@
                     });
                 });
                 
+            },
+
+            showHistory: function (job_id) {
+                var url = "/line-vue";
+                $.cookie("job_id", job_id);
+                window.location.href = url;
+            },
+
+            showTriggerName: function (trigger) {
+                var triggers = {
+                    cron: "周期",
+                    date: "单次",
+                    interval: "间隔",
+                    random: "随机"
+                };
+                return triggers[trigger];
             }
-
-
         },
         created() {
             this.getJobs();
