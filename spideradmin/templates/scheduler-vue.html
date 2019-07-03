@@ -53,10 +53,10 @@
             <!-- 显示任务表格开始 -->
             <template>
                 <el-table :data="tableData" stripe border style="width: 100%">
-                    <el-table-column type="index" label="序号" width="50"></el-table-column>
+                    <el-table-column fixed type="index" label="序号" width="50"></el-table-column>
+                    <el-table-column fixed prop="spider_name" label="爬虫名称" width="250"></el-table-column>
                     <el-table-column prop="server_name" label="服务器"></el-table-column>
                     <el-table-column prop="project_name" label="项目" width="150"></el-table-column>
-                    <el-table-column prop="spider_name" label="爬虫名称" width="250"></el-table-column>
                     <el-table-column label="定时类型">
                         <template slot-scope="scope">
                             {{showTriggerName(scope.row.trigger)}}
@@ -69,7 +69,7 @@
                         </template>
                     </el-table-column>
 
-                    <el-table-column prop="times" label="已运行次数" width="100"></el-table-column>
+                    <el-table-column sortable prop="times" label="已运行次数" width="120"></el-table-column>
                     <el-table-column label="调度状态" width="80">
                         <template slot-scope="scope">
                             <div v-if="scope.row.spider_status === 'success'">
@@ -82,9 +82,9 @@
                         </template>
                     </el-table-column>
                     
-                    <el-table-column prop="last_run_time" label="上次运行时间" width="170"></el-table-column>
-                    <el-table-column prop="next_run_time" label="下次运行时间" width="170"></el-table-column>
-                    <el-table-column prop="modify_time" label="修改时间" width="170"></el-table-column>
+                    <el-table-column sortable prop="last_run_time" label="上次运行时间" width="170"></el-table-column>
+                    <el-table-column sortable prop="next_run_time" label="下次运行时间" width="170"></el-table-column>
+                    <el-table-column sortable prop="modify_time" label="修改时间" width="170"></el-table-column>
                     <!-- <el-table-column prop="pending" label="pending"></el-table-column> -->
                     
                     <el-table-column label="调度历史" width="90">
