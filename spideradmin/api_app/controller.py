@@ -228,7 +228,7 @@ def log():
 
 @api_app.route("/cancelAll")
 def cancel_all():
-    server_host = request.args.get("server-host")
+    server_host = request.args.get("server_host")
     cancel_all_spider(server_host)
     return jsonify({
         "message": "删除成功!",
