@@ -326,10 +326,10 @@ def item_count_detail():
     log_errors = []
 
     for row in cursor.fetchall():
-        create_times.append(row["create_time"].strftime("%H:%M"))
-        durations.append(row["duration"])
-        item_counts.append(row["item_count"])
-        log_errors.append(row["log_error"])
+        create_times.insert(0, row["create_time"].strftime("%H:%M"))
+        durations.insert(0, row["duration"])
+        item_counts.insert(0, row["item_count"])
+        log_errors.insert(0, row["log_error"])
 
     data = {
         "spider_name": spider_name,
