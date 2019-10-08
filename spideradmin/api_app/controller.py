@@ -12,6 +12,7 @@ from spideradmin.api_app import scrapyd_utils
 from spideradmin.api_app.scrapyd_api import ScrapydAPI
 from spideradmin.api_app.scrapyd_utils import get_server_status, cancel_all_spider
 from spideradmin.version import VERSION
+from puremysql import PureMysql
 
 from tinydb import TinyDB, Query
 
@@ -275,3 +276,69 @@ def current_version():
     return jsonify({
         "version": VERSION
     })
+
+
+@api_app.route("/itemCount")
+def item_count():
+    """执行结果统计列表"""
+    if config.ITEM_LOG_DATABASE_URL is None:
+        return jsonify([])
+
+    mysql = PureMysql(db_url=config.ITEM_LOG_DATABASE_URL)
+
+    cursor = mysql.execute(
+        "select * from {table} order by create_time desc limit 20".format(table=config.ITEM_LOG_TABLE))
+
+    data = []
+    for row in cursor.fetchall():
+        item = {
+            "create_time": row["create_time"].strftime("%Y-%m-%d %H:%M:%S"),
+            "duration": row["duration"],
+            "id": row["id"],
+            "item_count": row["item_count"],
+            "log_error": row["log_error"],
+            "spider_name": row["spider_name"]
+        }
+        data.append(item)
+
+    mysql.close()
+
+    return jsonify(data)
+
+
+@api_app.route("/itemCountDetail")
+def item_count_detail():
+    """执行结果统计详细"""
+    spider_name = request.args.get("spider_name")
+
+    mysql = PureMysql(db_url=config.ITEM_LOG_DATABASE_URL)
+
+    cursor = mysql.execute(
+        "select * from {table} where spider_name=%(spider_name)s order by create_time desc limit 20".format(
+            table=config.ITEM_LOG_TABLE),
+        data={
+            "spider_name": spider_name
+        })
+
+    create_times = []
+    durations = []
+    item_counts = []
+    log_errors = []
+
+    for row in cursor.fetchall():
+        create_times.append(row["create_time"].strftime("%H:%M"))
+        durations.append(row["duration"])
+        item_counts.append(row["item_count"])
+        log_errors.append(row["log_error"])
+
+    data = {
+        "spider_name": spider_name,
+        "create_times": create_times,
+        "durations": durations,
+        "item_counts": item_counts,
+        "log_errors": log_errors
+    }
+
+    mysql.close()
+
+    return jsonify(data)

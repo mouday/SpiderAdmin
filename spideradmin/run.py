@@ -28,6 +28,9 @@ app = Flask(__name__)
 
 app.secret_key = config.SECRET_KEY
 
+app.jinja_env.auto_reload = True
+app.config['TEMPLATES_AUTO_RELOAD'] = True
+
 app.config['BASIC_AUTH_USERNAME'] = config.BASIC_AUTH_USERNAME
 app.config['BASIC_AUTH_PASSWORD'] = config.BASIC_AUTH_PASSWORD
 

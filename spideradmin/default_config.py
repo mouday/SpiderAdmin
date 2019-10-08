@@ -20,3 +20,7 @@ BASIC_AUTH_PASSWORD = "123456"
 
 # 如果为 True 整个站点都验证， 默认不验证
 BASIC_AUTH_FORCE = False
+
+# 执行结果数据库配置
+ITEM_LOG_DATABASE_URL = None
+ITEM_LOG_TABLE = None

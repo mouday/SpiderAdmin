@@ -1,0 +1,105 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <meta charset="UTF-8">
+    <!-- 引入样式 -->
+    <link rel="stylesheet" href="/static/element-ui/element-ui@2.9.1.css">
+    <!-- 先引入 Vue -->
+    <script src="/static/element-ui/vue@2.6.10.js"></script>
+    <!-- 引入组件库 -->
+    <script src="/static/element-ui/element-ui@2.9.1.js"></script>
+    <script src="/static/element-ui/axios@0.18.0.min.js"></script>
+    <script src="/static/js/jquery@3.4.1.min.js"></script>
+    <script src="/static/js/jquery.cookie@1.4.1.min.js"></script>
+    <style>
+        .el-main a {
+            text-decoration: none;
+            color: #333;
+        }
+    </style>
+</head>
+<body>
+<el-container>
+    <div id="app">
+        <el-breadcrumb separator="/">
+            <template v-for="item in navs">
+                <el-breadcrumb-item><a :href="item.url"><i class="el-icon-refresh"></i>{{item.name}}</a>
+                </el-breadcrumb-item>
+            </template>
+        </el-breadcrumb>
+
+
+        <el-header>
+            <h2>执行结果</h2>
+        </el-header>
+
+        <el-main>
+
+            <!-- 显示任务表格开始 -->
+            <template>
+                <el-table :data="tableData" stripe border style="width: 100%">
+
+                    <el-table-column prop="id" label="序号" width="80"></el-table-column>
+                    <el-table-column label="爬虫名称" min-width="160">
+                        <template slot-scope="scope">
+                            <a href="javascript:" @click="openItem(scope.row)">{{ scope.row.spider_name }}</a>
+                        </template>
+                    </el-table-column>
+                    <el-table-column prop="item_count" label="解析数量"></el-table-column>
+                    <el-table-column prop="log_error" label="报错数量"></el-table-column>
+                    <el-table-column prop="duration" label="持续时间"></el-table-column>
+                    <el-table-column prop="create_time" label="结束时间"></el-table-column>
+
+                </el-table>
+            </template>
+            <!-- 显示任务表格结束 -->
+        </el-main>
+    </div>
+</el-container>
+</body>
+
+<script>
+    new Vue({
+        el: '#app',
+        data: {
+            tableData: [],
+
+            navs: [
+                {
+                    name: "刷新状态",
+                    url: "/item-vue"
+                }
+
+            ]
+        },
+
+        methods: {
+            getStatus: function () {
+                axios.get("/api/itemCount"
+                ).then((response) => {
+                    this.tableData = response.data
+                }
+            ).
+                catch(() => {
+                    this.tableData = [];
+                this.$message({
+                    type: 'info',
+                    message: '加载失败'
+                });
+            })
+                ;
+            },
+
+            openItem: function (row) {
+                $.cookie("spider_name", row.spider_name);
+                var url = "/item-line-vue";
+                window.location.href = url;
+            },
+        },
+
+        created() {
+            this.getStatus();
+        }
+    })
+</script>
+</html>

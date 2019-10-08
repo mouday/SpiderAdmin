@@ -1,0 +1,107 @@
+<!DOCTYPE html>
+<html style="height: 100%">
+
+<head>
+    <meta charset="utf-8">
+    <!-- 引入样式 -->
+    <link rel="stylesheet" href="/static/element-ui/element-ui@2.9.1.css">
+    <!-- 先引入 Vue -->
+    <script src="/static/element-ui/vue@2.6.10.js"></script>
+    <!-- 引入组件库 -->
+    <script src="/static/element-ui/element-ui@2.9.1.js"></script>
+    <script src="/static/js/jquery@3.4.1.min.js"></script>
+    <script src="/static/js/jquery.cookie@1.4.1.min.js"></script>
+
+</head>
+
+<body style="height: 100%; margin: 0">
+<div id="app" style="margin-left: 10px; margin-top:10px;">
+    <el-button type="default" size="small" @click="goBack"><i class="el-icon-back"></i>返回</el-button>
+    <el-button type="default" size="small" @click="refresh"><i class="el-icon-refresh"></i>刷新</el-button>
+</div>
+
+<div id="container" style="height: 95%"></div>
+<script type="text/javascript" src="/static/js/echarts.min.js"></script>
+
+
+<script type="text/javascript">
+
+    $.get(
+        "/api/itemCountDetail",
+        {
+            spider_name: $.cookie("spider_name")
+        },
+        function (result) {
+            var dom = document.getElementById("container");
+            var myChart = echarts.init(dom);
+            var app = {};
+            option = null;
+
+            option = {
+                title: {
+                    text: result.spider_name
+                },
+                tooltip: {
+                    trigger: 'axis'
+                },
+                legend: {
+                    data: ['持续时间', '成功次数', '失败次数']
+                },
+                grid: {
+                    left: '3%',
+                    right: '4%',
+                    bottom: '3%',
+                    containLabel: true
+                },
+
+                xAxis: {
+                    type: 'category',
+                    boundaryGap: false,
+                    data: result.create_times,
+                    name: '时间'
+                },
+                yAxis: {
+                    type: 'value'
+                },
+                series: [
+                    {
+                        name: '持续时间',
+                        type: 'line',
+                        data: result.durations,
+                        itemStyle : { normal: {label : {show: true}}}
+                    },
+                    {
+                        name: '成功次数',
+                        type: 'line',
+                        data: result.item_counts,
+                        itemStyle : { normal: {label : {show: true}}}
+                    },
+                    {
+                        name: '失败次数',
+                        type: 'line',
+                        data: result.log_errors,
+                        itemStyle : { normal: {label : {show: true}}}
+                    }
+                ]
+            };
+
+            if (option && typeof option === "object") {
+                myChart.setOption(option, true);
+            }
+        });
+    new Vue({
+        el: '#app',
+        methods: {
+            goBack: function () {
+                window.location.href = "/item-vue";
+            },
+            refresh: function () {
+                window.location.href = "/item-line-vue";
+            }
+        }
+    });
+
+</script>
+</body>
+
+</html>
