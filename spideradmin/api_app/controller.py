@@ -285,18 +285,22 @@ def item_count():
         return jsonify([])
 
     mysql = PureMysql(db_url=config.ITEM_LOG_DATABASE_URL)
+    # sql = ""select * from {table} order by create_time desc limit 20".format(table=config.ITEM_LOG_TABLE))"
+    sql = "select spider_name, sum(item_count) as item_count, sum(duration) as duration, sum(log_error) as log_error, max(create_time) as create_time from  {table} GROUP BY spider_name".format(
+        table=config.ITEM_LOG_TABLE)
 
-    cursor = mysql.execute(
-        "select * from {table} order by create_time desc limit 20".format(table=config.ITEM_LOG_TABLE))
+    cursor = mysql.execute(sql)
 
     data = []
+    count = 0
     for row in cursor.fetchall():
+        count += 1
         item = {
+            "id": count,
             "create_time": row["create_time"].strftime("%Y-%m-%d %H:%M:%S"),
-            "duration": row["duration"],
-            "id": row["id"],
-            "item_count": row["item_count"],
-            "log_error": row["log_error"],
+            "duration": int(row["duration"]),
+            "item_count": int(row["item_count"]),
+            "log_error": int(row["log_error"]),
             "spider_name": row["spider_name"]
         }
         data.append(item)
@@ -304,6 +308,23 @@ def item_count():
     mysql.close()
 
     return jsonify(data)
+
+
+@api_app.route("/truncateItem")
+def truncate_item():
+    """清空统计列表"""
+    if config.ITEM_LOG_DATABASE_URL is None:
+        return jsonify({"code": -1})
+
+    mysql = PureMysql(db_url=config.ITEM_LOG_DATABASE_URL)
+
+    sql = "TRUNCATE table {table}".format(table=config.ITEM_LOG_TABLE)
+
+    cursor = mysql.execute(sql)
+
+    mysql.close()
+
+    return jsonify({"code": 0})
 
 
 @api_app.route("/itemCountDetail")

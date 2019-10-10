@@ -35,6 +35,9 @@
 
         <el-main>
 
+            <el-button @click="truncateItem" size="small">清空计数</el-button>
+            <div style="height: 20px;"></div>
+
             <!-- 显示任务表格开始 -->
             <template>
                 <el-table :data="tableData" stripe border style="width: 100%">
@@ -47,8 +50,8 @@
                     </el-table-column>
                     <el-table-column prop="item_count" label="解析数量"></el-table-column>
                     <el-table-column prop="log_error" label="报错数量"></el-table-column>
-                    <el-table-column prop="duration" label="持续时间"></el-table-column>
-                    <el-table-column prop="create_time" label="结束时间"></el-table-column>
+                    <el-table-column prop="duration" label="持续时间（秒）"></el-table-column>
+                    <el-table-column prop="create_time" label="最后执行时间"></el-table-column>
 
                 </el-table>
             </template>
@@ -95,6 +98,21 @@
                 var url = "/item-line-vue";
                 window.location.href = url;
             },
+
+            truncateItem(){
+                axios.get("/api/truncateItem"
+                ).then((response) => {
+                    if(response.data.code===0){
+                        this.$message.success('数据已清空');
+                    }else{
+                        this.$message.error('数据清空失败');
+                    }
+                }
+                ).catch(() => {
+                    this.$message.error('数据清空失败');
+                });
+                this.getStatus();
+            }
         },
 
         created() {
