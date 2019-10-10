@@ -48,10 +48,10 @@
                             <a href="javascript:" @click="openItem(scope.row)">{{ scope.row.spider_name }}</a>
                         </template>
                     </el-table-column>
-                    <el-table-column prop="item_count" label="解析数量"></el-table-column>
-                    <el-table-column prop="log_error" label="报错数量"></el-table-column>
-                    <el-table-column prop="duration" label="持续时间（秒）"></el-table-column>
-                    <el-table-column prop="create_time" label="最后执行时间"></el-table-column>
+                    <el-table-column prop="item_count" label="解析数量" sortable></el-table-column>
+                    <el-table-column prop="log_error" label="报错数量" sortable></el-table-column>
+                    <el-table-column prop="duration" label="持续时间（秒）" sortable></el-table-column>
+                    <el-table-column prop="create_time" label="最后执行时间" sortable></el-table-column>
 
                 </el-table>
             </template>
