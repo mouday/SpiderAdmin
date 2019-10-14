@@ -286,7 +286,16 @@ def item_count():
 
     mysql = PureMysql(db_url=config.ITEM_LOG_DATABASE_URL)
     # sql = ""select * from {table} order by create_time desc limit 20".format(table=config.ITEM_LOG_TABLE))"
-    sql = "select spider_name, sum(item_count) as item_count, sum(duration) as duration, sum(log_error) as log_error, max(create_time) as create_time from  {table} GROUP BY spider_name".format(
+    sql = """
+    select spider_name, 
+    count(*) as total,
+    sum(item_count) as item_count, 
+    sum(duration) as duration, 
+    sum(log_error) as log_error, 
+    max(create_time) as create_time 
+    from  {table} 
+    GROUP BY spider_name
+    """.format(
         table=config.ITEM_LOG_TABLE)
 
     cursor = mysql.execute(sql)
@@ -298,7 +307,7 @@ def item_count():
         item = {
             "id": count,
             "create_time": row["create_time"].strftime("%Y-%m-%d %H:%M:%S"),
-            "duration": int(row["duration"]),
+            "duration": int(row["duration"])/row['total'],
             "item_count": int(row["item_count"]),
             "log_error": int(row["log_error"]),
             "spider_name": row["spider_name"]
