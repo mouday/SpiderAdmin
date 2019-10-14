@@ -2,6 +2,7 @@
 
 # @Date    : 2019-06-25
 # @Author  : Peng Shiyu
+import math
 import sys
 
 import os
@@ -307,7 +308,7 @@ def item_count():
         item = {
             "id": count,
             "create_time": row["create_time"].strftime("%Y-%m-%d %H:%M:%S"),
-            "duration": int(row["duration"])/row['total'],
+            "duration": math.ceil((int(row["duration"])/row['total'])),
             "item_count": int(row["item_count"]),
             "log_error": int(row["log_error"]),
             "spider_name": row["spider_name"]
