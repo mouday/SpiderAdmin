@@ -1,6 +1,9 @@
 # SpiderAdmin
 
 ![PyPI](https://img.shields.io/pypi/v/spideradmin.svg)
+![PyPI - Downloads](https://img.shields.io/pypi/dm/SpiderAdmin)
+![PyPI - Python Version](https://img.shields.io/pypi/pyversions/SpiderAdmin)
+![PyPI - License](https://img.shields.io/pypi/l/SpiderAdmin)
 
 - github: https://github.com/mouday/SpiderAdmin
 - pypi: https://pypi.org/project/spideradmin/
