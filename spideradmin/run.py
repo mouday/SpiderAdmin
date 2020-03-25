@@ -13,7 +13,7 @@ from spideradmin.api_app.controller import api_app
 
 from spideradmin.html_app.controller import html_app
 from spideradmin.scheduler_app.controller import scheduler_app
-
+from spideradmin.version import VERSION
 from flask_basicauth import BasicAuth
 
 # 把当前目录加入执行路径，不然找不到用户自定义config.py文件
@@ -48,6 +48,7 @@ def main():
     if len(sys.argv) == 2:
         init = sys.argv[1]
 
+        # 初始化项目
         if init == "init":
             import shutil
             import os
@@ -55,6 +56,10 @@ def main():
             default_config = os.path.join(base_dir, "default_config.py")
             shutil.copy(default_config, "./config.py")
             print("spideradmin init successful!")
+
+        # 查看版本号
+        elif init == '-v':
+            print("spideradmin version:", VERSION)
         else:
             print("you may need: spideradmin init ?")
     else:
