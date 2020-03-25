@@ -27,7 +27,7 @@ $ scrapyd-deploy -a
 ## 启动运行
 
 ```
-$ pip3 install spideradmin
+$ pip3 install -U spideradmin
 
 $ spideradmin init  # 初始化，可选配置，也可以使用默认配置
 
