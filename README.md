@@ -34,6 +34,13 @@ $ spideradmin       # 启动服务
 访问：
 http://127.0.0.1:5000/
 
+## 开启站点认证
+
+修改启动目录下配置文件config.py
+```
+# 如果为 True 整个站点都验证， 默认不验证
+BASIC_AUTH_FORCE = True
+```
 
 ## 页面截图
 ![](https://github.com/mouday/SpiderAdmin/raw/master/image/main.png)
