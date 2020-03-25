@@ -1,35 +1,37 @@
 <!DOCTYPE html>
 <html lang="en">
+
 <head>
-    <meta charset="UTF-8">
-    <meta name="referrer" content="no-referrer"/>
-    <link rel="shortcut icon" href="/static/favicon.ico">
-    <title>Spider Admin</title>
-     <!-- 引入样式 -->
-    <link rel="stylesheet" href="/static/element-ui/element-ui@2.9.1.css">
-    <!-- 先引入 Vue -->
-    <script src="/static/element-ui/vue@2.6.10.js"></script>
-    <!-- 引入组件库 -->
-    <script src="/static/element-ui/element-ui@2.9.1.js"></script>
-    <script src="/static/element-ui/axios@0.18.0.min.js"></script>
-    <script src="/static/js/jquery@3.4.1.min.js"></script>
-    <script src="/static/js/jquery.cookie@1.4.1.min.js"></script>
-    <style>
-        body{
-            margin: 0;
-        }
-  .el-header {
-    background-color: #20a0ff;
-    color: #fff;
-    line-height: 50px;
-  }
+  <meta charset="UTF-8">
+  <meta name="referrer" content="no-referrer" />
+  <link rel="shortcut icon" href="/static/favicon.ico">
+  <title>Spider Admin</title>
+  <!-- 引入样式 -->
+  <link rel="stylesheet" href="/static/element-ui/element-ui@2.9.1.css">
+  <!-- 先引入 Vue -->
+  <script src="/static/element-ui/vue@2.6.10.js"></script>
+  <!-- 引入组件库 -->
+  <script src="/static/element-ui/element-ui@2.9.1.js"></script>
+  <script src="/static/element-ui/axios@0.18.0.min.js"></script>
+  <script src="/static/js/jquery@3.4.1.min.js"></script>
+  <script src="/static/js/jquery.cookie@1.4.1.min.js"></script>
+  <style>
+    body {
+      margin: 0;
+    }
 
-  .el-header .el-button{
-    float: right;
-    margin-top: 5px;
-  }
+    .el-header {
+      background-color: #20a0ff;
+      color: #fff;
+      line-height: 50px;
+    }
 
-  .el-aside {
+    .el-header .el-button {
+      float: right;
+      margin-top: 5px;
+    }
+
+    .el-aside {
       background-color: #eef1f6;
       color: #48576a;
       position: fixed;
@@ -37,160 +39,169 @@
       left: 0;
       bottom: 0;
       width: 150px;
-  }
-    .el-aside a{
-        text-decoration:none;
-        color:#333;
     }
-  .el-main {
-    background-color: #ffffff;
-    color: #333;
+
+    .el-aside a {
+      text-decoration: none;
+      color: #333;
+    }
+
+    .el-main {
+      background-color: #ffffff;
+      color: #333;
       position: fixed;
       top: 50px;
       right: 0;
       bottom: 0;
       left: 152px;
       overflow: auto;
-  }
+    }
 
-  body > .el-container {
-    margin-bottom: 40px;
-  }
+    body>.el-container {
+      margin-bottom: 40px;
+    }
 
-  .el-container:nth-child(5) .el-aside,
-  .el-container:nth-child(6) .el-aside {
-    line-height: 260px;
-  }
+    .el-container:nth-child(5) .el-aside,
+    .el-container:nth-child(6) .el-aside {
+      line-height: 260px;
+    }
 
-  .el-container:nth-child(7) .el-aside {
-    line-height: 320px;
-  }
+    .el-container:nth-child(7) .el-aside {
+      line-height: 320px;
+    }
 
-</style>
+    [v-cloak] {
+      display: none !important;
+    }
+  </style>
 </head>
+
 <body>
-<div id="app">
-<el-container>
+  <div id="app">
+    <el-container v-cloak>
 
-  <el-header>
-    <!-- <el-image style="width: 40px; height: 40px;" fit="fit" src="/static/favicon.jpeg"></el-image> -->
-    Spider Admin <span style="font-size: 12px">{{ currentVersion }}</span>
-    <span style="float:right;">
+      <el-header>
+        <!-- <el-image style="width: 40px; height: 40px;" fit="fit" src="/static/favicon.jpeg"></el-image> -->
+        Spider Admin <span style="font-size: 12px">{{ currentVersion }}</span>
+        <span style="float:right;">
 
-      <a href="https://github.com/mouday/SpiderAdmin" target="_blank">
-        <img alt="GitHub stars" src="https://img.shields.io/github/stars/mouday/SpiderAdmin.svg?style=social">
-      </a>
-
-        <a href="https://pypi.org/project/spideradmin/" target="_blank">
-            <img alt="Version" src="https://img.shields.io/pypi/v/spideradmin.svg">
-        </a>
-    </span>
-    <!-- <el-button size="small" plain @click="refreshPage"><i class="el-icon-refresh"></i>刷新</el-button> -->
-  </el-header>
-  <el-container>
-    <el-aside>
-        <el-row class="tac">
-  <el-col>
-
-    <el-menu
-      default-active="1"
-      class="el-menu-vertical-demo"
-      :default-openeds="['1', '2', '3']"
-      @open="handleOpen"
-      @close="handleClose"
-      >
-        <el-submenu index="1">
-        <template slot="title">
-          <i class="el-icon-menu"></i>
-          <span>爬虫服务器</span>
-        </template>
-          <el-menu-item index="1-1"><a @click="openUrl('/server-vue')">服务器列表</a></el-menu-item>
-          <el-menu-item index="1-2"><a @click="openUrl('/server-status-vue')">服务器状态</a></el-menu-item>
-          <el-menu-item index="1-3"><a @click="openUrl('/item-vue')">执行结果</a></el-menu-item>
-      </el-submenu>
-
-      <el-submenu index="2">
-        <template slot="title">
-          <i class="el-icon-time"></i>
-          <span>定时任务</span>
-        </template>
-        <el-menu-item index="2-1"><a @click="openUrl('/scheduler-vue')">定时列表</a></el-menu-item>
-      </el-submenu>
-
-      <el-submenu index="3">
-        <template slot="title">
-          <i class="el-icon-s-data"></i>
-          <span>爬虫项目</span>
-        </template>
-
-        <el-menu-item v-for="(item, index) in tableData" v-bind:key="index">
-          <a @click="openProject(item.server_name, item.server_host)">
-            {{item.server_name}}
+          <a href="https://github.com/mouday/SpiderAdmin" target="_blank">
+            <img alt="GitHub stars" src="https://img.shields.io/github/stars/mouday/SpiderAdmin.svg?style=social">
           </a>
-        </el-menu-item>
 
-      </el-submenu>
-    </el-menu>
-  </el-col>
+          <a href="https://pypi.org/project/spideradmin/" target="_blank">
+            <img alt="Version" src="https://img.shields.io/pypi/v/spideradmin.svg">
+          </a>
+        </span>
+        <!-- <el-button size="small" plain @click="refreshPage"><i class="el-icon-refresh"></i>刷新</el-button> -->
+      </el-header>
+      <el-container>
+        <el-aside>
+          <el-row class="tac">
+            <el-col>
 
-</el-row>
-    </el-aside>
-    <el-container>
-      <el-main>
-          <iframe id="iframe" src="/server-vue" frameborder="0" name="iframe-main" width="100%" height="100%"></iframe></el-main>
+              <el-menu default-active="1" class="el-menu-vertical-demo" :default-openeds="['1', '2', '3']"
+                @open="handleOpen" @close="handleClose">
+                <el-submenu index="1">
+                  <template slot="title">
+                    <i class="el-icon-menu"></i>
+                    <span>爬虫服务器</span>
+                  </template>
+                  <el-menu-item index="1-1"><a @click="openUrl('/server-vue')">服务器列表</a></el-menu-item>
+                  <el-menu-item index="1-2"><a @click="openUrl('/server-status-vue')">服务器状态</a></el-menu-item>
+                  <el-menu-item index="1-3"><a @click="openUrl('/item-vue')">执行结果</a></el-menu-item>
+                </el-submenu>
+
+                <el-submenu index="2">
+                  <template slot="title">
+                    <i class="el-icon-time"></i>
+                    <span>定时任务</span>
+                  </template>
+                  <el-menu-item index="2-1"><a @click="openUrl('/scheduler-vue')">定时列表</a></el-menu-item>
+                </el-submenu>
+
+                <el-submenu index="3">
+                  <template slot="title">
+                    <i class="el-icon-s-data"></i>
+                    <span>爬虫项目</span>
+                  </template>
+
+                  <el-menu-item v-for="(item, index) in tableData" v-bind:key="index">
+                    <a @click="openProject(item.server_name, item.server_host)">
+                      {{item.server_name}}
+                    </a>
+                  </el-menu-item>
+
+                </el-submenu>
+              </el-menu>
+            </el-col>
+
+          </el-row>
+        </el-aside>
+        <el-container>
+          <el-main>
+            <iframe id="iframe" :src="defaultUrl" frameborder="0" name="iframe-main" width="100%"
+              height="100%"></iframe></el-main>
+        </el-container>
+      </el-container>
+
     </el-container>
-  </el-container>
-
-</el-container>
-</div>
-<script>
+  </div>
+  <script>
     var app = new Vue({
-        el: '#app',
-        data: {
-            currentVersion: "",
-            tableData: []
-        },
-        methods: {
-            // 在iframe打开url
-            openUrl: function(url){
-                $("#iframe").attr("src", url);
-            },
-
-            openProject: function (server_name, server_host) {
-                $.cookie("server_name", server_name);
-                $.cookie("server_host", server_host);
-                var url = "/project-vue";
-                this.openUrl(url);
-            },
-
-            handleOpen: function(key, keyPath) {
-              console.log(key, keyPath);
-            },
-            handleClose: function(key, keyPath) {
-              console.log(key, keyPath);
-            },
-
-            getServers: function () {
-              axios.get("/api/servers"
-              ).then((response) => {
-                this.tableData = response.data
-              });
-            },
-            getVersion: function () {
-                axios.get("/api/currentVersion"
-                ).then((response) => {
-                    this.currentVersion = "V" + response.data.version;
-                });
-            }
-        },
-        created() {
-            this.getServers();
-            this.getVersion();
+      el: '#app',
+      data() {
+        return {
+          currentVersion: "",
+          tableData: [],
+          defaultUrl: "",
         }
+      },
+
+      methods: {
+        // 在iframe打开url
+        openUrl: function (url) {
+          $.cookie("openUrl", url)
+          $("#iframe").attr("src", url);
+        },
+
+        openProject: function (server_name, server_host) {
+          $.cookie("server_name", server_name);
+          $.cookie("server_host", server_host);
+          var url = "/project-vue";
+          this.openUrl(url);
+        },
+
+        handleOpen: function (key, keyPath) {
+          console.log(key, keyPath);
+        },
+        handleClose: function (key, keyPath) {
+          console.log(key, keyPath);
+        },
+
+        getServers: function () {
+          axios.get("/api/servers"
+          ).then((response) => {
+            this.tableData = response.data
+          });
+        },
+        getVersion: function () {
+          axios.get("/api/currentVersion"
+          ).then((response) => {
+            this.currentVersion = "V" + response.data.version;
+          });
+        }
+      },
+      created() {
+        this.defaultUrl = $.cookie("openUrl") || "/server-vue"
+        this.getServers();
+        this.getVersion();
+      }
 
     });
     window.app = app;
-</script>
+  </script>
 
 </body>
+
 </html>
