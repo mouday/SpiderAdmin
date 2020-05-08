@@ -98,6 +98,8 @@ def run_spider(**kwargs):
     server_name = kwargs["server_name"]
     project_name = kwargs["project_name"]
     spider_name = kwargs["spider_name"]
+    trigger = kwargs["trigger"]
+
     job_id = kwargs["job_id"]
     times = kwargs.get("times")
     times += 1
@@ -126,7 +128,10 @@ def run_spider(**kwargs):
     kwargs["spider_job_id"] = result
     kwargs["last_run_time"] = datetime.now().strftime(DATE_TIME_FORMAT)
 
-    set_schedule(kwargs)
+    # 单次执行的任务，不需要再次设置任务
+    # print('trigger', trigger)
+    if trigger != "date":
+        set_schedule(kwargs)
 
 
 def set_schedule(data):
