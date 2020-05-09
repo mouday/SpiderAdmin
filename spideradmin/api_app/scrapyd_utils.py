@@ -10,7 +10,6 @@ from collections import defaultdict
 from dateutil import parser
 import requests
 
-
 from spideradmin.api_app.scrapyd_api import ScrapydAPI
 
 
@@ -188,3 +187,25 @@ def cancel_all_spider(server):
                 print("{}: {}".format(project, uid))
 
                 scrapyd.cancel(project, uid)
+
+
+# 校验服务器是否合法
+def check_server(server_host):
+    try:
+        response = requests.get(urljoin(server_host, 'daemonstatus.json'))
+        response.encoding = response.apparent_encoding
+        text = response.json()
+        # { "status": "ok", "running": "0", "pending": "0", "finished": "0", "node_name": "node-name" }
+        # scrapyd 返回参数列表
+        key_arr = ['status', 'running', 'pending', 'finished', 'node_name']
+        # 判断参数是否都存在
+        temp_arr = [
+            item in text
+            for item in key_arr]
+        status_tag = True
+        # 如果有参数不存在则判断服务器不正常
+        if False in temp_arr:
+            status_tag = False
+    except Exception as e:
+        status_tag = False
+    return status_tag

@@ -107,9 +107,9 @@
                     <i class="el-icon-menu"></i>
                     <span>爬虫服务器</span>
                   </template>
-                  <el-menu-item index="1-1"><a @click="openUrl('/server-vue')">服务器列表</a></el-menu-item>
-                  <el-menu-item index="1-2"><a @click="openUrl('/server-status-vue')">服务器状态</a></el-menu-item>
-                  <el-menu-item index="1-3"><a @click="openUrl('/item-vue')">执行结果</a></el-menu-item>
+                  <el-menu-item index="1-1" @click="openUrl('/server-vue')"><a>服务器列表</a></el-menu-item>
+                  <el-menu-item index="1-2" @click="openUrl('/server-status-vue')"><a>服务器状态</a></el-menu-item>
+                  <el-menu-item index="1-3" @click="openUrl('/item-vue')"><a>执行结果</a></el-menu-item>
                 </el-submenu>
 
                 <el-submenu index="2">
@@ -117,7 +117,7 @@
                     <i class="el-icon-time"></i>
                     <span>定时任务</span>
                   </template>
-                  <el-menu-item index="2-1"><a @click="openUrl('/scheduler-vue')">定时列表</a></el-menu-item>
+                  <el-menu-item index="2-1" @click="openUrl('/scheduler-vue')"><a>定时列表</a></el-menu-item>
                 </el-submenu>
 
                 <el-submenu index="3">
@@ -126,8 +126,8 @@
                     <span>爬虫项目</span>
                   </template>
 
-                  <el-menu-item v-for="(item, index) in tableData" v-bind:key="index">
-                    <a @click="openProject(item.server_name, item.server_host)">
+                  <el-menu-item v-for="(item, index) in tableData" v-bind:key="index" @click="openProject(item.server_name, item.server_host)">
+                    <a>
                       {{item.server_name}}
                     </a>
                   </el-menu-item>
