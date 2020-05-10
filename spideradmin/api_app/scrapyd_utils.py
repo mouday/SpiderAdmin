@@ -199,9 +199,7 @@ def check_server(server_host):
         # scrapyd 返回参数列表
         key_arr = ['status', 'running', 'pending', 'finished', 'node_name']
         # 判断参数是否都存在
-        temp_arr = [
-            item in text
-            for item in key_arr]
+        temp_arr = [item in text for item in key_arr]
         status_tag = True
         # 如果有参数不存在则判断服务器不正常
         if False in temp_arr:
