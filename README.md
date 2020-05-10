@@ -1,5 +1,7 @@
 # SpiderAdmin
 
+![](image/logo.png)
+
 ![PyPI](https://img.shields.io/pypi/v/spideradmin.svg)
 ![PyPI - Downloads](https://img.shields.io/pypi/dm/SpiderAdmin)
 ![PyPI - Python Version](https://img.shields.io/pypi/pyversions/SpiderAdmin)
@@ -167,3 +169,12 @@ ITEM_LOG_TABLE = "log_spider"
 |0.0.17 | 2019-07-02 | 优化文件，优化随机调度，增加调度历史统计和可视化 |
 |0.0.20 | 2019-10-08 | 增加执行结果统计 |
 |0.0.29 | 2020-03-25 | 优化刷新显示，停留在当前页面下 |
+
+## 沟通交流
+
+关注本项目的小伙伴越来越多，为了更好地交流沟通，可以加入群聊
+
+问题：邀请码
+答案：SpiderAdmin
+
+![](image/qq.jpg)
