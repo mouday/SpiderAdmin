@@ -11,7 +11,7 @@ from flask import Blueprint, jsonify, request
 from spideradmin.api_app import scrapyd_utils
 
 from spideradmin.api_app.scrapyd_api import ScrapydAPI
-from spideradmin.api_app.scrapyd_utils import get_server_status, cancel_all_spider
+from spideradmin.api_app.scrapyd_utils import get_server_status, cancel_all_spider, check_server
 from spideradmin.version import VERSION
 from puremysql import PureMysql
 
@@ -30,18 +30,37 @@ user_server_table = db.table("user_servers")
 query = Query()
 
 
+# 初始化配置文件中的服务器插入db.sqlit
+def init_servers():
+    if len(user_server_table.all()) == 0:
+        # 初始化配置文件中配置的服务器
+        [
+            user_server_table.insert(
+                {
+                    "server_name": server_name,
+                    "server_host": server_host
+                }
+            )
+            for server_name, server_host in config.SCRAPYD_SERVERS
+            if (not all([server_name, server_host])) or (check_server(server_host) is False)
+        ]
+
+
+init_servers()
+
+
 def get_servers():
     user_servers = user_server_table.all()
-
-    defualt_servers = [
-        {
-            "server_name": server_name,
-            "server_host": server_host
-        }
-        for server_name, server_host in config.SCRAPYD_SERVERS
-    ]
-
-    user_servers.extend(defualt_servers)
+    #
+    # defualt_servers = [
+    #     {
+    #         "server_name": server_name,
+    #         "server_host": server_host
+    #     }
+    #     for server_name, server_host in config.SCRAPYD_SERVERS
+    # ]
+    #
+    # user_servers.extend(defualt_servers)
     return user_servers
 
 
@@ -58,10 +77,10 @@ def add_server():
     server_name = server_name.strip()
     server_host = server_host.strip()
 
-    if not all([server_name, server_host]):
-        message = "添加失败"
+    # 参数校验，以及服务器校验
+    if (not all([server_name, server_host])) or (check_server(server_host) is False):
+        message = "添加失败,请检查服务器地址是否正确"
         message_type = "warning"
-
     else:
         user_server_table.insert(
             {
@@ -308,7 +327,7 @@ def item_count():
         item = {
             "id": count,
             "create_time": row["create_time"].strftime("%Y-%m-%d %H:%M:%S"),
-            "duration": math.ceil((int(row["duration"])/row['total'])),
+            "duration": math.ceil((int(row["duration"]) / row['total'])),
             "item_count": int(row["item_count"]),
             "log_error": int(row["log_error"]),
             "spider_name": row["spider_name"]

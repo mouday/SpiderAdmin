@@ -11,18 +11,21 @@
     <script src="/static/element-ui/axios@0.18.0.min.js"></script>
     <script src="/static/js/jquery@3.4.1.min.js"></script>
     <script src="/static/js/jquery.cookie@1.4.1.min.js"></script>
-    
+    <script src="/static/js/rules.js"></script>
+
     <style>
-        .el-main a{
-        text-decoration:none;
-        color:#333;
-    }
-    body{
-        width: 600px;
-    }
-    .hide {
-        display: none;
-    }
+        .el-main a {
+            text-decoration: none;
+            color: #333;
+        }
+
+        body {
+            width: 600px;
+        }
+
+        .hide {
+            display: none;
+        }
     </style>
 </head>
 <body>
@@ -30,58 +33,75 @@
     <div id="app">
         <el-breadcrumb separator="/">
             <template v-for="item in navs">
-                <el-breadcrumb-item><a :href="item.url">{{item.name}}</a></el-breadcrumb-item>
+                <el-breadcrumb-item><a :href="item.url">{{ item.name }}</a></el-breadcrumb-item>
             </template>
         </el-breadcrumb>
 
         <el-header>
-            <h2>{{title}}</h2>
-        
+            <h2>{{ title }}</h2>
+
         </el-header>
-        
+
         <el-main>
             <!-- 添加任务表单开始 -->
             <template>
-                <el-form ref="form" :model="formData" label-width="80px">
-                    <el-form-item label="服务器">
-                        <el-input v-model="formData.server_name"></el-input>
+                <el-form ref="form" :model="formData" label-width="100px" :rules="rules">
+                    <el-form-item label="服务器" prop="server_name">
+                        <el-input v-model="formData.server_name" disabled></el-input>
                     </el-form-item>
-                    <el-form-item label="项目">
-                        <el-input v-model="formData.project_name"></el-input>
+                    <el-form-item label="项目" prop="project_name">
+                        <el-input v-model="formData.project_name" disabled></el-input>
                     </el-form-item>
-                    <el-form-item label="爬虫">
-                        <el-input v-model="formData.spider_name"></el-input>
+                    <el-form-item label="爬虫" prop="spider_name">
+                        <el-input v-model="formData.spider_name" disabled></el-input>
                     </el-form-item>
-                    
-                    <el-form-item label="定时类型" >
+
+                    <el-form-item label="定时类型">
                         <el-select v-model="formData.trigger" @change="changeTrigger" placeholder="请选择定时类型">
-                            <el-option v-for="item in triggers" :key="item.value" :label="item.label" :value="item.value">
+                            <el-option v-for="item in triggers" :key="item.value" :label="item.label"
+                                       :value="item.value">
                             </el-option>
                         </el-select>
                     </el-form-item>
 
                     <div class="cron">
-                    <el-form-item label="crontab">
-                        <el-input v-model="formData.cron"placeholder="* * * * *"></el-input>
-                    </el-form-item>
+                        <el-form-item label="crontab">
+                            <el-input v-model="formData.cron" placeholder="* * * * *"></el-input>
+                        </el-form-item>
                     </div>
 
                     <div class="interval hide">
                         <el-form-item label="时间间隔">
-                            <el-input v-model="formData.interval" placeholder="单位: 分钟"></el-input>
+                            <el-tooltip class="item" effect="dark" content="单位: 分钟" placement="right">
+                                <el-input-number v-model="formData.interval" controls-position="right"
+                                                 :min="1"></el-input-number>
+                            </el-tooltip>
                         </el-form-item>
                     </div>
 
                     <div class="random hide">
-                        <el-form-item label="随机间隔">
-                            <el-input v-model="formData.random" placeholder="单位: 分钟 例如：10-20"></el-input>
+                        <el-form-item label="随机时间间隔">
+                            <el-tooltip class="item" effect="dark" content="单位: 分钟" placement="top">
+                                <el-slider
+                                        v-model="random_arr"
+                                        range
+                                        show-stops
+                                        :min="1"
+                                        :max="60">
+                                </el-slider>
+                            </el-tooltip>
                         </el-form-item>
                     </div>
 
                     <div class="date hide">
-                    <el-form-item label="执行时间">
-                        <el-input v-model="formData.run_datetime" placeholder="例如：2019-06-26 19:18:00"></el-input>
-                    </el-form-item>
+                        <el-form-item label="执行时间">
+                            <el-date-picker
+                                    v-model="formData.run_datetime"
+                                    type="datetime"
+                                    value-format="yyyy-MM-dd HH:mm:ss"
+                                    placeholder="选择日期时间">
+                            </el-date-picker>
+                        </el-form-item>
                     </div>
 
                     <el-form-item>
@@ -99,13 +119,12 @@
 <script>
     var app = new Vue({
         el: '#app',
+        mixins: [rules],
         data: {
             title: "添加任务",
-            formData: {
-                
-            },
+            formData: {},
             navs: [
-                 {
+                {
                     name: "任务列表",
                     url: "/scheduler-vue"
                 },
@@ -122,19 +141,25 @@
                 {
                     value: "cron",
                     label: "周期任务"
-                }, 
+                },
                 {
                     value: "interval",
                     label: "间隔任务"
-                }, 
+                },
                 {
                     value: "random",
                     label: "随机任务"
                 }
-            ]
+            ],
+            random_arr:[10,60],
+        },
+        watch:{
+          random_arr:function (val) {
+              this.formData.random = val[0]+'-'+val[1]
+          }
         },
         methods: {
-           jobDetail: function (job_id) {
+            jobDetail: function (job_id) {
                 axios.get("/scheduler/jobDetail", {
                     params: {
                         job_id: job_id
@@ -148,7 +173,7 @@
 
             initFormData: function () {
                 var job_id = $.cookie("job_id");
-                
+
                 console.log("job_id: " + job_id);
 
                 // 如果有job_id 就是修改，那么先去服务端取最新数据
@@ -179,7 +204,7 @@
                 var hour = change(d.getHours());
                 var minute = change(d.getMinutes());
                 var second = change(d.getSeconds());
-                
+
                 function change(t) {
                     if (t < 10) {
                         return "0" + t;
@@ -187,12 +212,13 @@
                         return t;
                     }
                 }
+
                 var time = year + '-' + month + '-' + day + ' ' + hour + ':' + minute + ':' + second;
                 return time;
             },
 
             cancel: function () {
-                window.location.href = "/scheduler-vue";    
+                window.location.href = "/scheduler-vue";
             },
 
             addJob: function () {
@@ -204,13 +230,15 @@
                         type: response.data.message_type,
                         message: response.data.message
                     });
+                    setTimeout(()=>{
+                        this.cancel()
+                    },2000)
                 });
             },
-
             changeTrigger: function () {
                 console.log(this.formData.trigger);
                 // 隐藏所有分类
-                for(var index in this.triggers) {
+                for (var index in this.triggers) {
                     var trigger = this.triggers[index];
                     $(`.${trigger.value}`).addClass("hide");
                 }
