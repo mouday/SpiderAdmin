@@ -30,7 +30,7 @@ user_server_table = db.table("user_servers")
 query = Query()
 
 
-# 初始化配置文件中的服务器插入db.sqlit
+# 初始化配置文件中的服务器插入db.sqlite
 def init_servers():
     if len(user_server_table.all()) == 0:
         # 初始化配置文件中配置的服务器
@@ -42,7 +42,8 @@ def init_servers():
                 }
             )
             for server_name, server_host in config.SCRAPYD_SERVERS
-            if (not all([server_name, server_host])) or (check_server(server_host) is False)
+            # 对配置文件中的内容不进行数据校验，全部放行
+            # if (not all([server_name, server_host])) or (check_server(server_host) is False)
         ]
 
 
@@ -73,19 +74,27 @@ def servers():
 def add_server():
     server_host = request.json.get("server_host", "")
     server_name = request.json.get("server_name", "")
+    server_username = request.json.get("server_username", "")
+    server_password = request.json.get("server_password", "")
 
     server_name = server_name.strip()
     server_host = server_host.strip()
+    server_username = server_username.strip()
+    server_password = server_password.strip()
 
-    # 参数校验，以及服务器校验
-    if (not all([server_name, server_host])) or (check_server(server_host) is False):
+    # 参数校验，以及服务器校验，
+    # 添加的时候不需要校验服务器正确性，允许先添加地址和端口再启动服务
+    # if (not all([server_name, server_host])) or (check_server(server_host) is False):
+    if not all([server_name, server_host]):
         message = "添加失败,请检查服务器地址是否正确"
         message_type = "warning"
     else:
         user_server_table.insert(
             {
                 "server_name": server_name,
-                "server_host": server_host
+                "server_host": server_host,
+                "server_username": server_username,
+                "server_password": server_password,
             }
         )
         message = "添加成功"

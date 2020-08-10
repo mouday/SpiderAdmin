@@ -60,6 +60,8 @@ BASIC_AUTH_FORCE = True
 1. ~~增加登录页面做权限校验~~
 2. ~~增加定时设置的多样性~~
 3. ~~增加定时随机运行~~
+4. 支持scrapyd做nginx认证,支持分布式多机部署
+ 
 
 ## 部署Scrapyd注意版本问题
 - Scrapyd==1.2.0
@@ -178,3 +180,9 @@ ITEM_LOG_TABLE = "log_spider"
 答案：SpiderAdmin
 
 ![](image/qq.jpg)
+
+## 项目说明
+
+为了现有项目能够稳定运行，短期内不发布新的版本，以免不兼容
+
+
