@@ -10,6 +10,14 @@
 - github: https://github.com/mouday/SpiderAdmin
 - pypi: https://pypi.org/project/spideradmin/
 
+## 新版本发布说明
+
+SpiderAdmin 项目短期内不进行维护升级，如需体验新版，请移步：
+
+[spider-admin-pro](https://github.com/mouday/spider-admin-pro)
+
+spider-admin-pro 项目基于SpiderAdmin 对现有功能进行了重写，前端采用Vue，后端采用Flask，分模块开发，更加利于二次开发和代码维护。
+
 
 ## 功能介绍
 1. 对Scrapyd 接口进行可视化封装，对Scrapy爬虫项目进行删除 和 查看
